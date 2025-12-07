@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Dolgozatok.API/Dolgozatok.API.csproj" />
+  <Project Path="Dolgozatok.Application/Dolgozatok.Application.csproj" />
+  <Project Path="Dolgozatok.Domain/Dolgozatok.Domain.csproj" />
+  <Project Path="Dolgozatok.Infrastructure/Dolgozatok.Infrastructure.csproj" />
+</Solution>

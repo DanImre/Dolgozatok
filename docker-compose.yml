@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database
+  db:
+    image: postgres:latest
+    container_name: test_system_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db_data:/var/lib/postgresql
+
+  # 2. .NET API (Backend)
+  api:
+    build:
+      context: "./DolgozatokAPI"
+      dockerfile: "Dolgozatok.API/Dockerfile"
+    ports:
+      - "5000:80"
+    environment:
+      # Note: 'Server=db' refers to the service name above
+      - ConnectionStrings__DefaultConnection=Server=db;Port=5432;Database=TestSystemDb;User Id=${DB_USER};Password=${DB_PASSWORD};
+    depends_on:
+      - db
+
+# For development
+# 3. (Optional) PgAdmin - A GUI to view your DB (like SSMS)
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+# For production later:
+# volumes:
+#   pgdata: # Docker manages this storage location
+#     driver: local
+#     driver_opts:
+#       type: none
+#       o: bind
+
+  # 3. Angular (Frontend)
+#   frontend:
+#     build:
+#       context: ./ClientApp  # Assuming your Angular code is in a folder named 'ClientApp'
+#       dockerfile: Dockerfile
+#     ports:
+#       - "4200:80" # Maps container port 80 (NGINX) to your PC's port 4200
+#     depends_on:
+#       - api

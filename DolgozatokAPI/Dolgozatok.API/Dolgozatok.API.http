@@ -1,0 +1,6 @@
+@Dolgozatok.API_HostAddress = http://localhost:5277
+
+GET {{Dolgozatok.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
