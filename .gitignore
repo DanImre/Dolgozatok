@@ -5,6 +5,10 @@ TODOClasses.txt
 .env
 db_data
 
+# Documentation #
+
+UML/
+
 # VS STUFF #
 ############
 ## Ignore Visual Studio temporary files, build results, and
