@@ -438,3 +438,7 @@ FodyWeavers.xsd
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Custom environment secrets #
+.env
+*.env
