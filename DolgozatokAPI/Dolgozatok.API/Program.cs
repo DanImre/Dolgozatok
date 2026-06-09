@@ -1,8 +1,11 @@
 using Dolgozatok.Application.Interfaces;
 using Dolgozatok.Infrastructure;
+using Dolgozatok.Infrastructure.Models;
 using Dolgozatok.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
+using System;
 
 namespace Dolgozatok.API
 {
@@ -18,7 +21,8 @@ namespace Dolgozatok.API
                 options.UseNpgsql(connectionString));
 
             // Custom services
-            builder.Services.AddScoped<ITestRepository, TestRepository>();
+            builder.Services.AddScoped<ITestService, TestService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddControllers();
             builder.Services.AddOpenApi();
@@ -26,6 +30,11 @@ namespace Dolgozatok.API
             // PostgreSQL
             // This wouldn't require DateTime's to be in UTC (but it's generally a good practice to store DateTime in UTC in the database)
             // AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+            // Authentication and Authorization
+            builder.Services.AddIdentityApiEndpoints<ApplicationIdentityUser>()
+                .AddRoles<IdentityRole<int>>()
+                .AddEntityFrameworkStores<DolgozatokDbContext>();
 
             var app = builder.Build();
 
@@ -45,8 +54,11 @@ namespace Dolgozatok.API
 
             app.UseAuthorization();
 
-
             app.MapControllers();
+
+            // This automatically creates /register, /login, /refresh endpoints
+            // that return JSON Tokens for your frontend!
+            app.MapIdentityApi<ApplicationIdentityUser>();
 
             app.Run();
         }

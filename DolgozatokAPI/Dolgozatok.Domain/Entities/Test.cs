@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Dolgozatok.Domain.Entities
+﻿namespace Dolgozatok.Domain.Entities
 {
     public class Test
     {
@@ -11,6 +7,12 @@ namespace Dolgozatok.Domain.Entities
         public string Name { get; set; } = string.Empty;
 
         // "datetime" in C# maps to "timestamp" in Postgres
-        public DateTime AvailabilityDate { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime Edited { get; set; }
+        public int OriginalTestId { get; set; }
+        public int FolderId { get; set; }
+        public Folder Folder { get; set; } = null!;
+        public ICollection<Page> Pages { get; set; } = new List<Page>();
+        public bool IsDeleted { get; set; }
     }
 }

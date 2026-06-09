@@ -9,9 +9,9 @@ namespace Dolgozatok.API.Controllers
     public class DatabaseTestController : ControllerBase
     {
         private readonly ILogger<DatabaseTestController> _logger;
-        private readonly ITestRepository _testRepository;
+        private readonly ITestService _testRepository;
 
-        public DatabaseTestController(ILogger<DatabaseTestController> logger, ITestRepository testRepository)
+        public DatabaseTestController(ILogger<DatabaseTestController> logger, ITestService testRepository)
         {
             _logger = logger;
             _testRepository = testRepository;

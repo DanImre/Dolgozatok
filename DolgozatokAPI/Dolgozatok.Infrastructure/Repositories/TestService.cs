@@ -1,14 +1,15 @@
 ﻿using Dolgozatok.Application.Interfaces;
 using Dolgozatok.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Task = System.Threading.Tasks.Task;
 
 namespace Dolgozatok.Infrastructure.Repositories
 {
-    public class TestRepository : ITestRepository
+    public class TestService : ITestService
     {
         private readonly DolgozatokDbContext _context;
 
-        public TestRepository(DolgozatokDbContext context)
+        public TestService(DolgozatokDbContext context)
         {
             _context = context;
         }
