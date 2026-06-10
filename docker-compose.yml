@@ -22,13 +22,11 @@ services:
     ports:
       - "5000:80"
     environment:
-      # Note: 'Server=db' refers to the service name above
       - ConnectionStrings__DefaultConnection=Server=db;Port=5432;Database=TestSystemDb;User Id=${DB_USER};Password=${DB_PASSWORD};
     depends_on:
       - db
 
-# For development
-# 3. (Optional) PgAdmin - A GUI to view your DB (like SSMS)
+  # 3. PgAdmin (Database Management GUI for development)
   pgadmin:
     image: dpage/pgadmin4
     environment:
@@ -39,20 +37,12 @@ services:
     depends_on:
       - db
 
-# For production later:
-# volumes:
-#   pgdata: # Docker manages this storage location
-#     driver: local
-#     driver_opts:
-#       type: none
-#       o: bind
-
-  # 3. Angular (Frontend)
-#   frontend:
-#     build:
-#       context: ./ClientApp  # Assuming your Angular code is in a folder named 'ClientApp'
-#       dockerfile: Dockerfile
-#     ports:
-#       - "4200:80" # Maps container port 80 (NGINX) to your PC's port 4200
-#     depends_on:
-#       - api
+  # 4. React Vite (Frontend)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - api

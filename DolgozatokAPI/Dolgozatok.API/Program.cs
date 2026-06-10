@@ -1,22 +1,38 @@
 using Dolgozatok.Application.Interfaces;
 using Dolgozatok.Infrastructure;
 using Dolgozatok.Infrastructure.Models;
-using Dolgozatok.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using System;
+using Dolgozatok.Domain.Entities;
+using Dolgozatok.API.Extensions;
+using Dolgozatok.Infrastructure.Repositories;
+using Task = System.Threading.Tasks.Task;
 
 namespace Dolgozatok.API
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
+            // Load environment variables from the .env file at the project root
+            DotNetEnv.Env.TraversePath().Load();
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            
+            // If running standalone (native), connectionString will be null. Fallback to constructing it using .env values pointing to localhost
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                var dbUser = Environment.GetEnvironmentVariable("DB_USER");
+                var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+                var dbName = Environment.GetEnvironmentVariable("DB_NAME");
+                connectionString = $"Server=localhost;Port=5432;Database={dbName};User Id={dbUser};Password={dbPassword};";
+            }
+
             builder.Services.AddDbContext<DolgozatokDbContext>(options =>
                 options.UseNpgsql(connectionString));
 
@@ -60,7 +76,14 @@ namespace Dolgozatok.API
             // that return JSON Tokens for your frontend!
             app.MapIdentityApi<ApplicationIdentityUser>();
 
-            app.Run();
+            using (var serviceScope = app.Services.CreateScope())
+            using (var context = serviceScope.ServiceProvider.GetRequiredService<DolgozatokDbContext>())
+            using (var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<ApplicationIdentityUser>>())
+            {
+                await DbInitializer.InitializeAsync(context, app.Environment.IsDevelopment(), userManager);
+            }
+
+            await app.RunAsync();
         }
     }
 }
