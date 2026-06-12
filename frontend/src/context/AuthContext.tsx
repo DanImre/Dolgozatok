@@ -5,7 +5,9 @@ export interface UserProfile {
   id: number;
   realName: string;
   classId: number | null;
+  className?: string;
   email?: string;
+  role?: string;
 }
 
 interface LoginResponse {
@@ -19,7 +21,7 @@ interface AuthContextProps {
   isAuthenticated: boolean;
   user: UserProfile | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
 }
@@ -34,7 +36,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchProfile = async () => {
     try {
       const profile = await api.get<UserProfile>('/api/User/me');
-      setUser(profile);
+      setUser(prev => ({ ...profile, email: prev?.email || profile.email }));
       setIsAuthenticated(true);
     } catch (err) {
       console.error('Failed to fetch user profile:', err);
@@ -59,12 +61,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, rememberMe: boolean = true) => {
     setLoading(true);
     try {
-      const data = await api.post<LoginResponse>('/login', { email, password });
+      const data = await api.post<LoginResponse>('/api/login', { email, password });
       if (data && data.accessToken) {
-        api.setToken(data.accessToken);
+        api.setToken(data.accessToken, rememberMe);
         await fetchProfile();
         // Keep track of email in memory since identity user email isn't in User domain profile
         setUser(prev => prev ? { ...prev, email } : null);

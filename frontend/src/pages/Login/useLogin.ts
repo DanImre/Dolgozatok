@@ -10,6 +10,7 @@ export const useLogin = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -19,7 +20,7 @@ export const useLogin = () => {
     setLoading(true);
 
     try {
-      await login(email, password);
+      await login(email, password, rememberMe);
       navigate('/');
     } catch (err: any) {
       console.error(err);
@@ -38,6 +39,8 @@ export const useLogin = () => {
     setEmail,
     password,
     setPassword,
+    rememberMe,
+    setRememberMe,
     loading,
     error,
     handleSubmit,

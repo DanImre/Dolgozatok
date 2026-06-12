@@ -194,6 +194,15 @@ namespace Dolgozatok.Infrastructure
 
             modelBuilder.Entity<Class>(entity =>
                 entity.HasQueryFilter(c => !c.IsDeleted));
+
+            modelBuilder.Entity<ClassTeacher>(entity =>
+                entity.HasQueryFilter(ct => !ct.Class.IsDeleted && !ct.Teacher.IsDeleted));
+
+            modelBuilder.Entity<OpenPeriodClass>(entity =>
+                entity.HasQueryFilter(opc => !opc.Class.IsDeleted));
+
+            modelBuilder.Entity<UserFolder>(entity =>
+                entity.HasQueryFilter(uf => !uf.User.IsDeleted));
         }
     }
 }

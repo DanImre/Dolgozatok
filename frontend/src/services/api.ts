@@ -8,7 +8,7 @@ class ApiClient {
       headers['Content-Type'] = contentType;
     }
     
-    const token = localStorage.getItem(TOKEN_KEY);
+    const token = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -16,16 +16,23 @@ class ApiClient {
     return headers;
   }
 
-  setToken(token: string) {
-    localStorage.setItem(TOKEN_KEY, token);
+  setToken(token: string, rememberMe: boolean = true) {
+    if (rememberMe) {
+      localStorage.setItem(TOKEN_KEY, token);
+      sessionStorage.removeItem(TOKEN_KEY);
+    } else {
+      sessionStorage.setItem(TOKEN_KEY, token);
+      localStorage.removeItem(TOKEN_KEY);
+    }
   }
 
   clearToken() {
     localStorage.removeItem(TOKEN_KEY);
+    sessionStorage.removeItem(TOKEN_KEY);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
   }
 
   async get<T>(url: string): Promise<T> {

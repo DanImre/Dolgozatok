@@ -20,9 +20,9 @@ services:
       context: "./DolgozatokAPI"
       dockerfile: "Dolgozatok.API/Dockerfile"
     ports:
-      - "5000:80"
+      - "5000:8080"
     environment:
-      - ConnectionStrings__DefaultConnection=Server=db;Port=5432;Database=TestSystemDb;User Id=${DB_USER};Password=${DB_PASSWORD};
+      - ConnectionStrings__DefaultConnection=Server=db;Port=5432;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};
     depends_on:
       - db
 

@@ -24,13 +24,14 @@ namespace Dolgozatok.API
             // Add services to the container.
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
             
-            // If running standalone (native), connectionString will be null. Fallback to constructing it using .env values pointing to localhost
+            // If running standalone (native), connectionString will be null. Fallback to constructing it using .env values
             if (string.IsNullOrEmpty(connectionString))
             {
+                var dbServer = Environment.GetEnvironmentVariable("DB_SERVER") ?? "localhost";
                 var dbUser = Environment.GetEnvironmentVariable("DB_USER");
                 var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
                 var dbName = Environment.GetEnvironmentVariable("DB_NAME");
-                connectionString = $"Server=localhost;Port=5432;Database={dbName};User Id={dbUser};Password={dbPassword};";
+                connectionString = $"Server={dbServer};Port=5432;Database={dbName};User Id={dbUser};Password={dbPassword};";
             }
 
             builder.Services.AddDbContext<DolgozatokDbContext>(options =>
@@ -50,7 +51,8 @@ namespace Dolgozatok.API
             // Authentication and Authorization
             builder.Services.AddIdentityApiEndpoints<ApplicationIdentityUser>()
                 .AddRoles<IdentityRole<int>>()
-                .AddEntityFrameworkStores<DolgozatokDbContext>();
+                .AddEntityFrameworkStores<DolgozatokDbContext>()
+                .AddClaimsPrincipalFactory<CustomUserClaimsPrincipalFactory>();
 
             var app = builder.Build();
 
@@ -72,9 +74,9 @@ namespace Dolgozatok.API
 
             app.MapControllers();
 
-            // This automatically creates /register, /login, /refresh endpoints
+            // This automatically creates /api/register, /api/login, /api/refresh endpoints
             // that return JSON Tokens for your frontend!
-            app.MapIdentityApi<ApplicationIdentityUser>();
+            app.MapGroup("/api").MapIdentityApi<ApplicationIdentityUser>();
 
             using (var serviceScope = app.Services.CreateScope())
             using (var context = serviceScope.ServiceProvider.GetRequiredService<DolgozatokDbContext>())

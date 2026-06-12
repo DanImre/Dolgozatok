@@ -7,13 +7,14 @@ export const Login: React.FC = () => {
     setEmail,
     password,
     setPassword,
+    rememberMe,
+    setRememberMe,
     loading,
     error,
     handleSubmit,
     lang,
     language,
-    toggleLanguage,
-    navigate
+    toggleLanguage
   } = useLogin();
 
   return (
@@ -84,6 +85,33 @@ export const Login: React.FC = () => {
                 placeholder={lang.login.passwordPlaceholder}
                 className="w-full px-4 py-3 bg-slate-50/50 border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:border-emerald-500 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all duration-300 font-medium shadow-sm"
               />
+            </div>
+
+            <div className="flex items-center group cursor-pointer w-max">
+              <div className="relative flex items-center">
+                <input
+                  id="rememberMe"
+                  name="rememberMe"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="peer sr-only"
+                />
+                <div className="h-5 w-5 rounded border-2 border-slate-300 bg-white peer-checked:bg-emerald-500 peer-checked:border-emerald-500 transition-all duration-300 flex items-center justify-center group-hover:border-emerald-400 peer-focus-visible:ring-4 peer-focus-visible:ring-emerald-500/20">
+                  <svg 
+                    className={`w-3.5 h-3.5 text-white transform transition-transform duration-300 ${rememberMe ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`} 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor" 
+                    strokeWidth="3"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+              </div>
+              <label htmlFor="rememberMe" className="ml-3 block text-sm font-medium text-slate-600 cursor-pointer select-none group-hover:text-slate-800 transition-colors duration-300">
+                {lang.login.rememberMe}
+              </label>
             </div>
 
             <div>

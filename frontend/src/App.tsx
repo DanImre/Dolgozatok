@@ -5,8 +5,10 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { Login } from './pages/Login/Login';
 import { Home } from './pages/Home/Home';
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, loading } = useAuth();
+import { CreateTest } from './pages/CreateTest/CreateTest';
+
+const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode, allowedRoles?: string[] }) => {
+  const { isAuthenticated, loading, user } = useAuth();
   
   if (loading) {
     return (
@@ -22,7 +24,13 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
   
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+
+  if (allowedRoles && user?.role && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <>{children}</>;
 };
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
@@ -68,6 +76,16 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            
+            <Route
+              path="/createtest"
+              element={
+                <ProtectedRoute allowedRoles={['Teacher']}>
+                  <CreateTest />
+                </ProtectedRoute>
+              }
+            />
+            
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>

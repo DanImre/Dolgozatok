@@ -19,6 +19,7 @@ export const en: TranslationKeys = {
     emailPlaceholder: "name@example.com",
     passwordLabel: "Password",
     passwordPlaceholder: "••••••••",
+    rememberMe: "Remember me",
     button: "Log In",
     loading: "Logging in...",
     errorInvalid: "Login failed. Incorrect email or password!"
@@ -29,7 +30,7 @@ export const en: TranslationKeys = {
     profileInfo: "User Profile Information",
     realName: "Name",
     email: "Email address",
-    classId: "Class ID",
+    className: "Class",
     notSelected: "Not specified",
     needLogin: "Please log in to access the system features.",
     loginButton: "Go to Login",
@@ -40,5 +41,17 @@ export const en: TranslationKeys = {
     testListTitle: "Tests Available in the System",
     noTests: "No tests found in database.",
     addedSuccess: "Test added successfully!"
+  },
+  studentDashboard: {
+    availableTests: "Tests Available for You",
+    completedTests: "Previously Filled Tests"
+  },
+  teacherDashboard: {
+    myFolders: "My Folders",
+    myClasses: "My Classes",
+    createTestButton: "Create Test"
+  },
+  createTest: {
+    title: "Create a New Test"
   }
 };

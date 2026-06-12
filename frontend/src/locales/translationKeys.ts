@@ -17,6 +17,7 @@ export interface TranslationKeys {
     emailPlaceholder: string;
     passwordLabel: string;
     passwordPlaceholder: string;
+    rememberMe: string;
     button: string;
     loading: string;
     errorInvalid: string;
@@ -27,7 +28,7 @@ export interface TranslationKeys {
     profileInfo: string;
     realName: string;
     email: string;
-    classId: string;
+    className: string;
     notSelected: string;
     needLogin: string;
     loginButton: string;
@@ -38,5 +39,17 @@ export interface TranslationKeys {
     testListTitle: string;
     noTests: string;
     addedSuccess: string;
+  };
+  studentDashboard: {
+    availableTests: string;
+    completedTests: string;
+  };
+  teacherDashboard: {
+    myFolders: string;
+    myClasses: string;
+    createTestButton: string;
+  };
+  createTest: {
+    title: string;
   };
 }

@@ -43,7 +43,15 @@ namespace Dolgozatok.API.Controllers
                 return NotFound("Domain user profile not found.");
             }
 
-            return Ok(domainUser);
+            var role = User.FindFirstValue(ClaimTypes.Role);
+            return Ok(new
+            {
+                id = domainUser.Id,
+                realName = domainUser.RealName,
+                classId = domainUser.ClassId,
+                className = domainUser.Class?.ClassName,
+                role = role
+            });
         }
 
         [HttpPost("register")]

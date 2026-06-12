@@ -14,7 +14,9 @@ namespace Dolgozatok.Infrastructure.Repositories
         }
         public async Task<User?> GetUserById(int Id)
         {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Id == Id && !u.IsDeleted);
+            return await _context.Users
+                .Include(u => u.Class)
+                .FirstOrDefaultAsync(u => u.Id == Id && !u.IsDeleted);
         }
 
         public async System.Threading.Tasks.Task AddUserAsync(User user)

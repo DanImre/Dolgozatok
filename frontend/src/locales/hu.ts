@@ -19,6 +19,7 @@ export const hu: TranslationKeys = {
     emailPlaceholder: "nev@pelda.hu",
     passwordLabel: "Jelszó",
     passwordPlaceholder: "••••••••",
+    rememberMe: "Emlékezz rám",
     button: "Bejelentkezés",
     loading: "Bejelentkezés folyamatban...",
     errorInvalid: "Sikertelen bejelentkezés. Helytelen e-mail vagy jelszó!"
@@ -29,7 +30,7 @@ export const hu: TranslationKeys = {
     profileInfo: "Felhasználói profil adatok",
     realName: "Név",
     email: "E-mail cím",
-    classId: "Osztály azonosító",
+    className: "Osztály",
     notSelected: "Nincs megadva",
     needLogin: "Kérjük, a funkciók eléréséhez jelentkezzen be.",
     loginButton: "Ugrás a bejelentkezésre",
@@ -40,5 +41,17 @@ export const hu: TranslationKeys = {
     testListTitle: "Elérhető tesztek a rendszerben",
     noTests: "Nincsenek tesztek az adatbázisban.",
     addedSuccess: "Teszt sikeresen hozzáadva!"
+  },
+  studentDashboard: {
+    availableTests: "Kitölthető tesztek",
+    completedTests: "Korábban kitöltött tesztek"
+  },
+  teacherDashboard: {
+    myFolders: "Mappáim",
+    myClasses: "Osztályaim",
+    createTestButton: "Teszt létrehozása"
+  },
+  createTest: {
+    title: "Új teszt létrehozása"
   }
 };
