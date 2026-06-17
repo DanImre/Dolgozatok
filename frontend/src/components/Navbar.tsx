@@ -1,4 +1,5 @@
 import React from 'react';
+import { Globe } from 'lucide-react';
 import { useNavbar } from './useNavbar';
 
 export const Navbar: React.FC = () => {
@@ -17,9 +18,9 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center gap-4">
           <button
             onClick={toggleLanguage}
-            className="flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 border border-slate-200 hover:border-emerald-500/50 hover:bg-emerald-50 text-slate-600 rounded-lg cursor-pointer transition-all duration-300 font-semibold text-xs shadow-sm"
+            className="flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 border border-slate-200 hover:border-emerald-500/50 hover:bg-emerald-50 text-slate-600 rounded-lg cursor-pointer transition-all duration-300 font-semibold text-sm shadow-sm"
           >
-            🌐 {language.toUpperCase()}
+            <Globe size={16} className="text-emerald-600" /> {language.toUpperCase()}
           </button>
           <button
             onClick={logout}

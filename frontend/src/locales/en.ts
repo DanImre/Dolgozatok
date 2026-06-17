@@ -52,6 +52,53 @@ export const en: TranslationKeys = {
     createTestButton: "Create Test"
   },
   createTest: {
-    title: "Create a New Test"
+    title: "Create a New Test",
+    defaultTestTitle: "Untitled Test",
+    cancel: "Cancel",
+    saveTest: "Save Test",
+    noPages: "No pages yet",
+    noPagesSub: "Start by adding a page to your test.",
+    addFirstPage: "Add First Page",
+    addNewPage: "Add New Page",
+    page: "Page",
+    randomizePage: "Randomize Page Position",
+    noTasks: "No tasks on this page yet.",
+    addTask: "Add Task",
+    typeLabel: "Type:",
+    randomizeTask: "Randomize Task Position",
+    randomizeElement: "Randomize Element",
+    addElement: "Add Element",
+    ptsLabel: "Pts:",
+    manualGrade: "Manual Grade",
+    taskTypes: {
+      multipleChoice: "Multiple Choice",
+      trueFalse: "True / False",
+      shortAnswer: "Short Answer",
+      essay: "Essay",
+      fillInTheBlanks: "Fill in the Blanks",
+      matching: "Matching",
+      numerical: "Numerical"
+    },
+    tooltips: {
+      deletePage: "Delete Page",
+      deleteTask: "Delete Task",
+      deleteElement: "Delete Element",
+      moveUp: "Move Up",
+      moveDown: "Move Down",
+      changeLanguage: "Change Language"
+    },
+    placeholders: {
+      testTitle: "Enter Test Title...",
+      taskHeader: "Enter task question or header...",
+      statement: "Statement...",
+      option: "Option ",
+      questionPart: "Question part...",
+      exactNumber: "Exact number...",
+      bodyText: "Body text...",
+      correctAnswer: "Correct answer...",
+      select: "Select...",
+      trueOption: "True",
+      falseOption: "False"
+    }
   }
 };

@@ -8,6 +8,8 @@ using System;
 using Dolgozatok.Domain.Entities;
 using Dolgozatok.API.Extensions;
 using Dolgozatok.Infrastructure.Repositories;
+using Microsoft.AspNetCore.DataProtection;
+using System.IO;
 using Task = System.Threading.Tasks.Task;
 
 namespace Dolgozatok.API
@@ -49,6 +51,10 @@ namespace Dolgozatok.API
             // AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
             // Authentication and Authorization
+            builder.Services.AddDataProtection()
+                .PersistKeysToFileSystem(new DirectoryInfo(@"/app/DataProtection-Keys"))
+                .SetApplicationName("DolgozatokApp");
+
             builder.Services.AddIdentityApiEndpoints<ApplicationIdentityUser>()
                 .AddRoles<IdentityRole<int>>()
                 .AddEntityFrameworkStores<DolgozatokDbContext>()

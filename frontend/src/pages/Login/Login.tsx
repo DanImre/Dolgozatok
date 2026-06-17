@@ -1,4 +1,5 @@
 import React from 'react';
+import { Globe } from 'lucide-react';
 import { useLogin } from './useLogin';
 
 export const Login: React.FC = () => {
@@ -23,15 +24,15 @@ export const Login: React.FC = () => {
       <div className="absolute top-6 right-6">
         <button
           onClick={toggleLanguage}
-          className="flex items-center gap-2 px-4 py-2 bg-white/80 border border-slate-200 hover:border-emerald-500/50 hover:bg-emerald-50 text-slate-600 rounded-lg cursor-pointer transition-all duration-300 font-medium text-sm shadow-sm backdrop-blur-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-white/80 border border-slate-200 hover:border-emerald-500/50 hover:bg-emerald-50 text-slate-600 rounded-lg cursor-pointer transition-all duration-300 font-semibold text-sm shadow-sm backdrop-blur-sm"
         >
-          🌐 {language.toUpperCase()}
+          <Globe size={16} className="text-emerald-600" /> {language.toUpperCase()}
         </button>
       </div>
 
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
-          <h1 className="font-display font-extrabold text-4xl sm:text-5xl tracking-tight bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 bg-clip-text text-transparent drop-shadow-sm select-none">
+          <h1 className="font-display font-extrabold text-4xl sm:text-5xl tracking-tight leading-relaxed pb-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-500 bg-clip-text text-transparent drop-shadow-sm select-none">
             Dolgozatok
           </h1>
           <h2 className="mt-4 font-display font-bold text-2xl text-slate-800 tracking-wide">

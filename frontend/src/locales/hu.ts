@@ -52,6 +52,53 @@ export const hu: TranslationKeys = {
     createTestButton: "Teszt létrehozása"
   },
   createTest: {
-    title: "Új teszt létrehozása"
+    title: "Új teszt létrehozása",
+    defaultTestTitle: "Névtelen teszt",
+    cancel: "Mégsem",
+    saveTest: "Teszt mentése",
+    noPages: "Még nincsenek oldalak",
+    noPagesSub: "Kezdje egy új oldal hozzáadásával.",
+    addFirstPage: "Első oldal hozzáadása",
+    addNewPage: "Új oldal",
+    page: "Oldal",
+    randomizePage: "Oldal pozíciójának keverése",
+    noTasks: "Még nincsenek feladatok az oldalon.",
+    addTask: "Feladat hozzáadása",
+    typeLabel: "Típus:",
+    randomizeTask: "Feladat pozíciójának keverése",
+    randomizeElement: "Elem keverése",
+    addElement: "Elem hozzáadása",
+    ptsLabel: "Pont:",
+    manualGrade: "Kézi javítás",
+    taskTypes: {
+      multipleChoice: "Feleletválasztós",
+      trueFalse: "Igaz / Hamis",
+      shortAnswer: "Rövid válasz",
+      essay: "Esszé",
+      fillInTheBlanks: "Hiányos szöveg",
+      matching: "Párosítás",
+      numerical: "Numerikus"
+    },
+    tooltips: {
+      deletePage: "Oldal törlése",
+      deleteTask: "Feladat törlése",
+      deleteElement: "Elem törlése",
+      moveUp: "Mozgatás fel",
+      moveDown: "Mozgatás le",
+      changeLanguage: "Nyelv megváltoztatása"
+    },
+    placeholders: {
+      testTitle: "Teszt címének megadása...",
+      taskHeader: "Kérdés vagy feladat megadása...",
+      statement: "Állítás...",
+      option: "Válaszlehetőség ",
+      questionPart: "Kérdés rész...",
+      exactNumber: "Pontos szám...",
+      bodyText: "Szöveg...",
+      correctAnswer: "Helyes válasz...",
+      select: "Kiválasztás...",
+      trueOption: "Igaz",
+      falseOption: "Hamis"
+    }
   }
 };

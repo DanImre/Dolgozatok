@@ -9,6 +9,10 @@ namespace Dolgozatok.Domain.Entities
         public Page Page { get; set; } = null!;
         public string Header { get; set; } = string.Empty;
         public int Number { get; set; }
+        /// <summary>
+        /// Determines whether the Tasks on this page are presented in random order.
+        /// </summary>
+        public bool IsRandomized { get; set; }
         public TaskTypes Type { get; set; } = TaskTypes.Numerical;
         public ICollection<TaskElement> TaskElements { get; set; } = new List<TaskElement>();
     }

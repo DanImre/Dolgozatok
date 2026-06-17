@@ -25,6 +25,8 @@ services:
       - ConnectionStrings__DefaultConnection=Server=db;Port=5432;Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};
     depends_on:
       - db
+    volumes:
+      - ./api_keys:/app/DataProtection-Keys
 
   # 3. PgAdmin (Database Management GUI for development)
   pgadmin:

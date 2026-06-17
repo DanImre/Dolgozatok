@@ -51,5 +51,52 @@ export interface TranslationKeys {
   };
   createTest: {
     title: string;
+    defaultTestTitle: string;
+    cancel: string;
+    saveTest: string;
+    noPages: string;
+    noPagesSub: string;
+    addFirstPage: string;
+    addNewPage: string;
+    page: string;
+    randomizePage: string;
+    noTasks: string;
+    addTask: string;
+    typeLabel: string;
+    randomizeTask: string;
+    randomizeElement: string;
+    addElement: string;
+    ptsLabel: string;
+    manualGrade: string;
+    taskTypes: {
+      multipleChoice: string;
+      trueFalse: string;
+      shortAnswer: string;
+      essay: string;
+      fillInTheBlanks: string;
+      matching: string;
+      numerical: string;
+    };
+    tooltips: {
+      deletePage: string;
+      deleteTask: string;
+      deleteElement: string;
+      moveUp: string;
+      moveDown: string;
+      changeLanguage: string;
+    };
+    placeholders: {
+      testTitle: string;
+      taskHeader: string;
+      statement: string;
+      option: string;
+      questionPart: string;
+      exactNumber: string;
+      bodyText: string;
+      correctAnswer: string;
+      select: string;
+      trueOption: string;
+      falseOption: string;
+    };
   };
 }

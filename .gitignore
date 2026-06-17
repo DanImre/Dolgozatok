@@ -4,6 +4,7 @@ TODOClasses.txt
 # DOCKER STUFF #
 .env
 db_data
+api_keys/
 
 # Documentation #
 
