@@ -1,4 +1,3 @@
-import { TaskTypes } from '../../../types/testEditor';
 import type { Task, TaskElement } from '../../../types/testEditor';
 
 export const useTaskEditor = (task: Task, onUpdate: (updatedTask: Task) => void) => {
@@ -6,24 +5,27 @@ export const useTaskEditor = (task: Task, onUpdate: (updatedTask: Task) => void)
         onUpdate({ ...task, header });
     };
 
-    const updateType = (type: TaskTypes) => {
-        onUpdate({ ...task, type });
-    };
-
     const toggleRandomized = () => {
         onUpdate({ ...task, isRandomized: !task.isRandomized });
     };
 
-    const addElement = () => {
+    const addElement = (initialProps?: Partial<TaskElement>, index?: number) => {
         const newElement: TaskElement = {
             id: crypto.randomUUID(),
             body: '',
             correctAnswer: '',
             points: 1,
             requiresManualGrading: false,
-            isRandomized: true
+            isRandomized: true,
+            ...initialProps
         };
-        onUpdate({ ...task, taskElements: [...task.taskElements, newElement] });
+        if (index !== undefined) {
+            const newElements = [...task.taskElements];
+            newElements.splice(index, 0, newElement);
+            onUpdate({ ...task, taskElements: newElements });
+        } else {
+            onUpdate({ ...task, taskElements: [...task.taskElements, newElement] });
+        }
     };
 
     const updateElement = (elementId: string, updatedElement: TaskElement) => {
@@ -51,7 +53,6 @@ export const useTaskEditor = (task: Task, onUpdate: (updatedTask: Task) => void)
 
     return {
         updateHeader,
-        updateType,
         toggleRandomized,
         addElement,
         updateElement,

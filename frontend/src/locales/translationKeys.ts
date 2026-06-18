@@ -66,13 +66,19 @@ export interface TranslationKeys {
     randomizeTask: string;
     randomizeElement: string;
     addElement: string;
+    addTextElement: string;
+    addQuestionElement: string;
+    addTextSegment: string;
+    addBlank: string;
+    defaultBlankText: string;
     ptsLabel: string;
     manualGrade: string;
+    isCorrect: string;
+    markCorrect: string;
     taskTypes: {
       multipleChoice: string;
-      trueFalse: string;
-      shortAnswer: string;
-      essay: string;
+      trueOrFalse: string;
+      textInput: string;
       fillInTheBlanks: string;
       matching: string;
       numerical: string;

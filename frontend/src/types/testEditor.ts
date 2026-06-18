@@ -1,11 +1,10 @@
 export const TaskTypes = {
     MultipleChoice: 0,
-    TrueFalse: 1,
-    ShortAnswer: 2,
-    Essay: 3,
-    FillInTheBlanks: 4,
-    Matching: 5,
-    Numerical: 6
+    TrueOrFalse: 1,
+    TextInput: 2,
+    FillInTheBlanks: 3,
+    Matching: 4,
+    Numerical: 5
 } as const;
 
 export type TaskTypes = typeof TaskTypes[keyof typeof TaskTypes];

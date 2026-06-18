@@ -3,6 +3,7 @@ import { TaskTypes } from '../../../types/testEditor';
 import type { Task } from '../../../types/testEditor';
 import { useTaskEditor } from './useTaskEditor';
 import { TaskElementEditor } from './TaskElementEditor';
+import { formatLocalizedNumber } from '../../../components/LocalizedNumberInput';
 import { Trash2, Shuffle, Plus, ChevronUp, ChevronDown } from 'lucide-react';
 import { useTranslation } from '../../../locales/LanguageContext';
 
@@ -17,20 +18,19 @@ interface TaskEditorProps {
 
 export const TaskEditor: React.FC<TaskEditorProps> = ({ task, taskIndex, onUpdate, onDelete, onMoveUp, onMoveDown }) => {
     const { 
-        updateHeader, updateType, toggleRandomized, 
+        updateHeader, toggleRandomized, 
         addElement, updateElement, deleteElement, moveElement 
     } = useTaskEditor(task, onUpdate);
-    const { lang } = useTranslation();
+    const { lang, language } = useTranslation();
     const t = lang.createTest;
 
     const taskTypeOptions = [
         { value: TaskTypes.MultipleChoice, label: t.taskTypes.multipleChoice },
-        { value: TaskTypes.TrueFalse, label: t.taskTypes.trueFalse },
-        { value: TaskTypes.ShortAnswer, label: t.taskTypes.shortAnswer },
-        { value: TaskTypes.Essay, label: t.taskTypes.essay },
+        { value: TaskTypes.TrueOrFalse, label: t.taskTypes.trueOrFalse },
+        { value: TaskTypes.TextInput, label: t.taskTypes.textInput },
         { value: TaskTypes.FillInTheBlanks, label: t.taskTypes.fillInTheBlanks },
         { value: TaskTypes.Matching, label: t.taskTypes.matching },
-        { value: TaskTypes.Numerical, label: t.taskTypes.numerical },
+        { value: TaskTypes.Numerical, label: t.taskTypes.numerical }
     ];
 
     return (
@@ -70,15 +70,14 @@ export const TaskEditor: React.FC<TaskEditorProps> = ({ task, taskIndex, onUpdat
                 <div className="flex items-center gap-6 text-sm ml-7">
                     <div className="flex items-center gap-2">
                         <span className="text-slate-500">{t.typeLabel}</span>
-                        <select 
-                            value={task.type}
-                            onChange={(e) => updateType(Number(e.target.value) as TaskTypes)}
-                            className="bg-slate-50 border border-slate-200 text-slate-700 rounded-md px-2 py-1 outline-none focus:border-emerald-300"
-                        >
-                            {taskTypeOptions.map(opt => (
-                                <option key={opt.value} value={opt.value}>{opt.label}</option>
-                            ))}
-                        </select>
+                        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-md font-medium text-xs">
+                            {taskTypeOptions.find(opt => opt.value === task.type)?.label}
+                        </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-md font-medium text-xs shadow-sm">
+                        <span className="text-slate-500">{t.ptsLabel}</span>
+                        <span className="text-slate-700">{formatLocalizedNumber(task.taskElements.reduce((sum, el) => sum + (el.points || 0), 0), language)}</span>
                     </div>
 
                     <label className="flex items-center cursor-pointer gap-2 group">
@@ -103,27 +102,226 @@ export const TaskEditor: React.FC<TaskEditorProps> = ({ task, taskIndex, onUpdat
             {/* Elements Area */}
             <div className="p-4 bg-slate-50/50">
                 <div className="flex flex-col gap-3 mb-4">
-                    {task.taskElements.map((element, i) => (
+                    {task.taskElements.map((element, i) => {
+                        const isBlankElement = task.type === TaskTypes.FillInTheBlanks && element.body.includes('"type":"blank"');
+                        return (
                         <TaskElementEditor 
                             key={element.id}
                             element={element}
                             taskType={task.type}
                             index={i}
                             onUpdate={(updated) => updateElement(element.id, updated)}
-                            onDelete={() => deleteElement(element.id)}
-                            onMoveUp={i > 0 ? () => moveElement(i, -1) : undefined}
-                            onMoveDown={i < task.taskElements.length - 1 ? () => moveElement(i, 1) : undefined}
+                            onDelete={() => {
+                                if (task.type === TaskTypes.FillInTheBlanks) {
+                                    if (isBlankElement) {
+                                        let textElementIndex = -1;
+                                        for (let j = i - 1; j >= 0; j--) {
+                                            if (task.taskElements[j].body.includes('"type":"text"')) {
+                                                textElementIndex = j;
+                                                break;
+                                            }
+                                        }
+                                        if (textElementIndex !== -1) {
+                                            const textElement = task.taskElements[textElementIndex];
+                                            const parsedTextBody = JSON.parse(textElement.body);
+                                            
+                                            let blankIndex = 0;
+                                            for (let j = textElementIndex + 1; j < i; j++) {
+                                                if (task.taskElements[j].body.includes('"type":"blank"')) blankIndex++;
+                                            }
+                                            
+                                            let matches = [...parsedTextBody.text.matchAll(/\[\[(.*?)\]\]/g)];
+                                            if (matches[blankIndex]) {
+                                                const matchStart = matches[blankIndex].index!;
+                                                const matchLength = matches[blankIndex][0].length;
+                                                
+                                                let start = matchStart;
+                                                let end = matchStart + matchLength;
+                                                if (start > 0 && parsedTextBody.text[start - 1] === ' ') {
+                                                    start--;
+                                                } else if (end < parsedTextBody.text.length && parsedTextBody.text[end] === ' ') {
+                                                    end++;
+                                                }
+                                                parsedTextBody.text = parsedTextBody.text.substring(0, start) + parsedTextBody.text.substring(end);
+                                                
+                                                const updatedTextElement = { ...textElement, body: JSON.stringify(parsedTextBody) };
+                                                
+                                                const newElements = task.taskElements.filter(e => e.id !== element.id);
+                                                const newTextElIndex = newElements.findIndex(e => e.id === textElement.id);
+                                                newElements[newTextElIndex] = updatedTextElement;
+                                                
+                                                onUpdate({ ...task, taskElements: newElements });
+                                                return;
+                                            }
+                                        }
+                                    } else {
+                                        let j = i + 1;
+                                        while (j < task.taskElements.length && task.taskElements[j].body.includes('"type":"blank"')) {
+                                            j++;
+                                        }
+                                        const newElements = [...task.taskElements.slice(0, i), ...task.taskElements.slice(j)];
+                                        onUpdate({ ...task, taskElements: newElements });
+                                        return;
+                                    }
+                                }
+                                deleteElement(element.id);
+                            }}
+                            onMoveUp={i > 0 && !isBlankElement ? () => {
+                                if (task.type === TaskTypes.FillInTheBlanks) {
+                                    let j = i + 1;
+                                    while (j < task.taskElements.length && task.taskElements[j].body.includes('"type":"blank"')) j++;
+                                    const currentGroup = task.taskElements.slice(i, j);
+                                    
+                                    let prevStart = i - 1;
+                                    while (prevStart >= 0 && !task.taskElements[prevStart].body.includes('"type":"text"')) prevStart--;
+                                    
+                                    if (prevStart >= 0) {
+                                        const prevGroup = task.taskElements.slice(prevStart, i);
+                                        const beforePrev = task.taskElements.slice(0, prevStart);
+                                        const afterCurrent = task.taskElements.slice(j);
+                                        onUpdate({ ...task, taskElements: [...beforePrev, ...currentGroup, ...prevGroup, ...afterCurrent] });
+                                    } else {
+                                        moveElement(i, -1);
+                                    }
+                                } else {
+                                    moveElement(i, -1);
+                                }
+                            } : undefined}
+                            onMoveDown={i < task.taskElements.length - 1 && !isBlankElement ? () => {
+                                if (task.type === TaskTypes.FillInTheBlanks) {
+                                    let j = i + 1;
+                                    while (j < task.taskElements.length && task.taskElements[j].body.includes('"type":"blank"')) j++;
+                                    const currentGroup = task.taskElements.slice(i, j);
+                                    
+                                    if (j < task.taskElements.length) {
+                                        let nextEnd = j + 1;
+                                        while (nextEnd < task.taskElements.length && task.taskElements[nextEnd].body.includes('"type":"blank"')) nextEnd++;
+                                        const nextGroup = task.taskElements.slice(j, nextEnd);
+                                        
+                                        const beforeCurrent = task.taskElements.slice(0, i);
+                                        const afterNext = task.taskElements.slice(nextEnd);
+                                        
+                                        onUpdate({ ...task, taskElements: [...beforeCurrent, ...nextGroup, ...currentGroup, ...afterNext] });
+                                    } else {
+                                        moveElement(i, 1);
+                                    }
+                                } else {
+                                    moveElement(i, 1);
+                                }
+                            } : undefined}
+                            onTextAndBlanksChange={task.type === TaskTypes.FillInTheBlanks ? (newText, allBlanks) => {
+                                const updatedElement = { ...element, body: JSON.stringify({ type: 'text', text: newText }) };
+                                
+                                const beforeElements = task.taskElements.slice(0, i);
+                                
+                                let blanksForThisText = [];
+                                let j = i + 1;
+                                while (j < task.taskElements.length) {
+                                    const nextEl = task.taskElements[j];
+                                    if (nextEl.body.includes('"type":"text"')) break;
+                                    blanksForThisText.push(nextEl);
+                                    j++;
+                                }
+                                
+                                const afterElements = task.taskElements.slice(j);
+                                
+                                const newBlankElements = allBlanks.map((blankStr, idx) => {
+                                    if (idx < blanksForThisText.length) {
+                                        return { ...blanksForThisText[idx], correctAnswer: blankStr };
+                                    } else {
+                                        return {
+                                            id: crypto.randomUUID(),
+                                            body: JSON.stringify({ type: 'blank' }),
+                                            correctAnswer: blankStr,
+                                            points: 1,
+                                            requiresManualGrading: false,
+                                            isRandomized: false
+                                        };
+                                    }
+                                });
+                                
+                                onUpdate({ 
+                                    ...task, 
+                                    taskElements: [...beforeElements, updatedElement, ...newBlankElements, ...afterElements] 
+                                });
+                            } : undefined}
+                            onBlankIdChange={isBlankElement ? (newId) => {
+                                const updatedBlank = { ...element, correctAnswer: newId };
+                                
+                                let textElementIndex = -1;
+                                for (let j = i - 1; j >= 0; j--) {
+                                    if (task.taskElements[j].body.includes('"type":"text"')) {
+                                        textElementIndex = j;
+                                        break;
+                                    }
+                                }
+                                
+                                if (textElementIndex !== -1) {
+                                    const textElement = task.taskElements[textElementIndex];
+                                    const parsedTextBody = JSON.parse(textElement.body);
+                                    
+                                    let blankIndex = 0;
+                                    for (let j = textElementIndex + 1; j < i; j++) {
+                                        if (task.taskElements[j].body.includes('"type":"blank"')) blankIndex++;
+                                    }
+                                    
+                                    let matches = [...parsedTextBody.text.matchAll(/\[\[(.*?)\]\]/g)];
+                                    if (matches[blankIndex]) {
+                                        const matchStart = matches[blankIndex].index!;
+                                        const matchLength = matches[blankIndex][0].length;
+                                        parsedTextBody.text = parsedTextBody.text.substring(0, matchStart) + `[[${newId}]]` + parsedTextBody.text.substring(matchStart + matchLength);
+                                    }
+                                    
+                                    const updatedTextElement = { ...textElement, body: JSON.stringify(parsedTextBody) };
+                                    
+                                    const newElements = [...task.taskElements];
+                                    newElements[i] = updatedBlank;
+                                    newElements[textElementIndex] = updatedTextElement;
+                                    
+                                    onUpdate({ ...task, taskElements: newElements });
+                                } else {
+                                    updateElement(element.id, updatedBlank);
+                                }
+                            } : undefined}
                         />
-                    ))}
+                        );
+                    })}
                 </div>
 
-                <button 
-                    onClick={addElement}
-                    className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-100 border border-emerald-300 hover:bg-emerald-200 hover:border-emerald-400 rounded-md transition-colors w-fit"
-                >
-                    <Plus size={16} />
-                    {t.addElement}
-                </button>
+                {task.type === TaskTypes.TextInput ? (
+                    <div className="flex items-center gap-3">
+                        <button 
+                            onClick={() => addElement({ body: JSON.stringify({ type: 'text', text: '' }), points: 0, requiresManualGrading: false, isRandomized: false })}
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-100 border border-emerald-300 hover:bg-emerald-200 hover:border-emerald-400 rounded-md transition-colors w-fit"
+                        >
+                            <Plus size={16} />
+                            {t.addTextElement}
+                        </button>
+                        <button 
+                            onClick={() => addElement({ body: JSON.stringify({ type: 'question', text: '' }) })}
+                            className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-indigo-700 bg-indigo-100 border border-indigo-300 hover:bg-indigo-200 hover:border-indigo-400 rounded-md transition-colors w-fit"
+                        >
+                            <Plus size={16} />
+                            {t.addQuestionElement}
+                        </button>
+                    </div>
+                ) : task.type === TaskTypes.FillInTheBlanks ? (
+                    <button 
+                        onClick={() => addElement({ body: JSON.stringify({ type: 'text', text: '' }), points: 0, requiresManualGrading: false, isRandomized: false })}
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-100 border border-emerald-300 hover:bg-emerald-200 hover:border-emerald-400 rounded-md transition-colors w-fit"
+                    >
+                        <Plus size={16} />
+                        {t.addTextSegment}
+                    </button>
+                ) : (
+                    <button 
+                        onClick={() => addElement()}
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-100 border border-emerald-300 hover:bg-emerald-200 hover:border-emerald-400 rounded-md transition-colors w-fit"
+                    >
+                        <Plus size={16} />
+                        {t.addElement}
+                    </button>
+                )}
             </div>
         </div>
     );

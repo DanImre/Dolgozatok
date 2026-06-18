@@ -6,11 +6,11 @@ export const usePageEditor = (page: Page, onUpdate: (updatedPage: Page) => void)
         onUpdate({ ...page, isRandomized: !page.isRandomized });
     };
 
-    const addTask = () => {
+    const addTask = (type: TaskTypes) => {
         const newTask: Task = {
             id: crypto.randomUUID(),
             header: '',
-            type: TaskTypes.MultipleChoice,
+            type: type,
             isRandomized: false,
             taskElements: []
         };

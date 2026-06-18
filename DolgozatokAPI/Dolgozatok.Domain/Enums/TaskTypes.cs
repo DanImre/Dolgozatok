@@ -3,9 +3,8 @@
     public enum TaskTypes
     {
         MultipleChoice,
-        TrueFalse,
-        ShortAnswer,
-        Essay,
+        TrueOrFalse,
+        TextInput,
         FillInTheBlanks,
         Matching,
         Numerical

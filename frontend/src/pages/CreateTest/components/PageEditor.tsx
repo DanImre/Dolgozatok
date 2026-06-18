@@ -1,9 +1,11 @@
 import React from 'react';
+import { TaskTypes } from '../../../types/testEditor';
 import type { Page } from '../../../types/testEditor';
 import { usePageEditor } from './usePageEditor';
 import { TaskEditor } from './TaskEditor';
 import { Trash2, Plus, Shuffle, ChevronUp, ChevronDown } from 'lucide-react';
 import { useTranslation } from '../../../locales/LanguageContext';
+import { formatLocalizedNumber } from '../../../components/LocalizedNumberInput';
 
 interface PageEditorProps {
     page: Page;
@@ -16,8 +18,17 @@ interface PageEditorProps {
 
 export const PageEditor: React.FC<PageEditorProps> = ({ page, pageIndex, onUpdate, onDelete, onMoveUp, onMoveDown }) => {
     const { toggleRandomized, addTask, updateTask, deleteTask, moveTask } = usePageEditor(page, onUpdate);
-    const { lang } = useTranslation();
+    const { lang, language } = useTranslation();
     const t = lang.createTest;
+
+    const taskTypeOptions = [
+        { value: TaskTypes.MultipleChoice, label: t.taskTypes.multipleChoice },
+        { value: TaskTypes.TrueOrFalse, label: t.taskTypes.trueOrFalse },
+        { value: TaskTypes.TextInput, label: t.taskTypes.textInput },
+        { value: TaskTypes.FillInTheBlanks, label: t.taskTypes.fillInTheBlanks },
+        { value: TaskTypes.Matching, label: t.taskTypes.matching },
+        { value: TaskTypes.Numerical, label: t.taskTypes.numerical }
+    ];
 
     return (
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -25,6 +36,10 @@ export const PageEditor: React.FC<PageEditorProps> = ({ page, pageIndex, onUpdat
             <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <h3 className="text-lg font-semibold text-slate-700">{t.page} {pageIndex + 1}</h3>
+                    <div className="flex items-center gap-1.5 px-2.5 py-0.5 bg-white border border-slate-200 rounded text-sm shadow-sm">
+                        <span className="text-slate-500 text-xs">{t.ptsLabel}</span>
+                        <span className="font-bold text-slate-700">{formatLocalizedNumber(page.tasks.reduce((sum, task) => sum + task.taskElements.reduce((elSum, el) => elSum + (el.points || 0), 0), 0), language)}</span>
+                    </div>
                     <label className="flex items-center cursor-pointer gap-2 group">
                         <div className="relative flex items-center">
                             <input 
@@ -81,14 +96,20 @@ export const PageEditor: React.FC<PageEditorProps> = ({ page, pageIndex, onUpdat
                     ))
                 )}
 
-                <div className="flex justify-start">
-                    <button 
-                        onClick={addTask}
-                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 rounded-lg transition-colors shadow-sm"
-                    >
-                        <Plus size={16} />
-                        {t.addTask}
-                    </button>
+                <div className="flex flex-col gap-3 mt-2 border-t border-slate-100 pt-4">
+                    <span className="text-sm font-medium text-slate-500">{t.addTask}:</span>
+                    <div className="flex flex-wrap gap-2">
+                        {taskTypeOptions.map(opt => (
+                            <button 
+                                key={opt.value}
+                                onClick={() => addTask(opt.value)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 rounded-lg transition-colors shadow-sm"
+                            >
+                                <Plus size={16} />
+                                {opt.label}
+                            </button>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCreateTest } from './useCreateTest';
 import { PageEditor } from './components/PageEditor';
+import { formatLocalizedNumber } from '../../components/LocalizedNumberInput';
 import { Plus, Save, X, Globe } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../locales/LanguageContext';
@@ -15,6 +16,12 @@ export const CreateTest: React.FC = () => {
     setLanguage(language === 'hu' ? 'en' : 'hu');
   };
 
+  const totalTestPoints = test.pages.reduce((testSum, page) => {
+    return testSum + page.tasks.reduce((pageSum, task) => {
+      return pageSum + task.taskElements.reduce((taskSum, el) => taskSum + (el.points || 0), 0);
+    }, 0);
+  }, 0);
+
   return (
     <div className="min-h-screen flex flex-col bg-[#f3f7f5] text-slate-800">
       {/* Top Toolbar replacing Navbar */}
@@ -28,28 +35,34 @@ export const CreateTest: React.FC = () => {
             placeholder={t.placeholders.testTitle}
           />
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={toggleLanguage}
-            className="flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 border border-slate-200 hover:border-emerald-500/50 hover:bg-emerald-50 text-slate-600 rounded-lg cursor-pointer transition-all duration-300 font-semibold text-sm shadow-sm"
-            title={t.tooltips.changeLanguage}
-          >
-            <Globe size={16} className="text-emerald-600" /> {language.toUpperCase()}
-          </button>
-          <button 
-            onClick={() => navigate('/home')}
-            className="px-4 py-2 bg-white border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-600 hover:text-red-600 rounded-lg cursor-pointer transition-all duration-300 font-semibold text-sm shadow-sm flex items-center gap-2"
-          >
-            <X size={18} />
-            {t.cancel}
-          </button>
-          <button 
-            onClick={saveTest}
-            className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg font-medium flex items-center gap-2 transition-colors shadow-sm"
-          >
-            <Save size={18} />
-            {t.saveTest}
-          </button>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg shadow-sm">
+            <span className="text-sm font-medium text-emerald-700">{t.ptsLabel}</span>
+            <span className="text-lg font-bold text-emerald-800">{formatLocalizedNumber(totalTestPoints, language)}</span>
+          </div>
+          <div className="flex items-center gap-3 border-l border-slate-200 pl-6">
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 border border-slate-200 hover:border-emerald-500/50 hover:bg-emerald-50 text-slate-600 rounded-lg cursor-pointer transition-all duration-300 font-semibold text-sm shadow-sm"
+              title={t.tooltips.changeLanguage}
+            >
+              <Globe size={16} className="text-emerald-600" /> {language.toUpperCase()}
+            </button>
+            <button 
+              onClick={() => navigate('/home')}
+              className="px-4 py-2 bg-white border border-slate-200 hover:border-red-300 hover:bg-red-50 text-slate-600 hover:text-red-600 rounded-lg cursor-pointer transition-all duration-300 font-semibold text-sm shadow-sm flex items-center gap-2"
+            >
+              <X size={18} />
+              {t.cancel}
+            </button>
+            <button 
+              onClick={saveTest}
+              className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg font-medium flex items-center gap-2 transition-colors shadow-sm"
+            >
+              <Save size={18} />
+              {t.saveTest}
+            </button>
+          </div>
         </div>
       </header>
 
