@@ -1,50 +1,57 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../../locales/LanguageContext';
+import { api } from '../../../services/api';
 
-export type FileItem = {
-  id: string;
+export type FolderItemDTO = {
+  id: number;
   name: string;
-  type: 'folder' | 'test';
-  children?: FileItem[];
+  type: 0 | 1; // 0 = Folder, 1 = Test (matching C# Enum)
+  created: string | null;
+  edited: string | null;
 };
 
-export const dummyFileSystem: FileItem[] = [
-  {
-    id: 'f1',
-    name: '2026 Fall Semester',
-    type: 'folder',
-    children: [
-      {
-        id: 'f2',
-        name: 'Mathematics',
-        type: 'folder',
-        children: [
-          { id: 't1', name: 'Mid-term Exam', type: 'test' },
-          { id: 't2', name: 'Final Exam', type: 'test' }
-        ]
-      },
-      { id: 't3', name: 'General Survey', type: 'test' }
-    ]
-  },
-  {
-    id: 'f3',
-    name: 'Archived',
-    type: 'folder',
-    children: []
-  }
-];
+export type BreadcrumbItem = {
+  id: number;
+  name: string;
+};
 
 export const useTeacherDashboard = () => {
   const { lang } = useTranslation();
   const navigate = useNavigate();
-  const [currentPath, setCurrentPath] = useState<FileItem[]>([]);
+  const [currentPath, setCurrentPath] = useState<BreadcrumbItem[]>([]);
+  const [contents, setContents] = useState<FolderItemDTO[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const currentFolderContents = currentPath.length === 0 
-    ? dummyFileSystem 
-    : currentPath[currentPath.length - 1].children || [];
+  const currentFolderId = currentPath.length > 0 ? currentPath[currentPath.length - 1].id : null;
+
+  const fetchContents = async (folderId: number | null) => {
+    setIsLoading(true);
+    try {
+      if (folderId === null) {
+        const data = await api.get<FolderItemDTO[]>('/api/Folder/Root');
+        setContents(data);
+      } else {
+        const data = await api.get<FolderItemDTO[]>(`/api/Folder/${folderId}/Contents`);
+        setContents(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch folder contents', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchContents(currentFolderId);
+  }, [currentFolderId]);
 
   const handleCreateTest = () => {
+    if (currentFolderId) {
+      localStorage.setItem('selectedFolderId', currentFolderId.toString());
+    } else {
+      localStorage.removeItem('selectedFolderId');
+    }
     navigate('/createtest');
   };
 
@@ -56,19 +63,48 @@ export const useTeacherDashboard = () => {
     setCurrentPath(currentPath.slice(0, index + 1));
   };
 
-  const handleItemClick = (item: FileItem) => {
-    if (item.type === 'folder') {
-      setCurrentPath([...currentPath, item]);
+  const handleFolderClick = (folder: FolderItemDTO) => {
+    if (folder.type === 0) { // Only navigate if it's a folder
+      setCurrentPath([...currentPath, { id: folder.id, name: folder.name }]);
+    }
+  };
+
+  const handleCreateFolder = async () => {
+    const name = prompt('Folder Name:');
+    if (!name?.trim()) return;
+    
+    try {
+      await api.post('/api/Folder', { name: name.trim(), parentId: currentFolderId });
+      fetchContents(currentFolderId);
+    } catch (error) {
+      console.error('Failed to create folder', error);
+      alert('Failed to create folder.');
+    }
+  };
+
+  const handleDeleteFolder = async (e: React.MouseEvent, folderId: number) => {
+    e.stopPropagation();
+    if (confirm('Are you sure you want to delete this folder and ALL its contents recursively?')) {
+      try {
+        await api.delete(`/api/Folder/${folderId}`);
+        fetchContents(currentFolderId);
+      } catch (error) {
+        console.error('Failed to delete folder', error);
+        alert('Failed to delete folder.');
+      }
     }
   };
 
   return {
     lang,
     currentPath,
-    currentFolderContents,
+    contents,
+    isLoading,
     handleCreateTest,
     handleGoToRoot,
     handleNavigateToBreadcrumb,
-    handleItemClick
+    handleFolderClick,
+    handleCreateFolder,
+    handleDeleteFolder
   };
 };

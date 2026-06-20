@@ -56,6 +56,8 @@ export const en: TranslationKeys = {
     defaultTestTitle: "Untitled Test",
     cancel: "Cancel",
     saveTest: "Save Test",
+    saving: "Saving...",
+    saved: "Saved!",
     noPages: "No pages yet",
     noPagesSub: "Start by adding a page to your test.",
     addFirstPage: "Add First Page",

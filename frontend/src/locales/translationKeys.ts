@@ -54,6 +54,8 @@ export interface TranslationKeys {
     defaultTestTitle: string;
     cancel: string;
     saveTest: string;
+    saving: string;
+    saved: string;
     noPages: string;
     noPagesSub: string;
     addFirstPage: string;

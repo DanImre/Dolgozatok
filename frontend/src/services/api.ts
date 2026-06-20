@@ -64,6 +64,34 @@ class ApiClient {
     const text = await response.text();
     return (text ? JSON.parse(text) : {}) as T;
   }
+
+  async delete(url: string): Promise<void> {
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: this.getHeaders(),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(errorText || `HTTP error! status: ${response.status}`);
+    }
+  }
+
+  async put<T, U = any>(url: string, body: U): Promise<T> {
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: this.getHeaders(),
+      body: JSON.stringify(body),
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(errorText || `HTTP error! status: ${response.status}`);
+    }
+
+    const text = await response.text();
+    return (text ? JSON.parse(text) : {}) as T;
+  }
 }
 
 export const api = new ApiClient();

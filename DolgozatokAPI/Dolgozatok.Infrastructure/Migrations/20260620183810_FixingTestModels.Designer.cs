@@ -3,6 +3,7 @@ using System;
 using Dolgozatok.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Dolgozatok.Infrastructure.Migrations
 {
     [DbContext(typeof(DolgozatokDbContext))]
-    partial class DolgozatokDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260620183810_FixingTestModels")]
+    partial class FixingTestModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,9 +80,6 @@ namespace Dolgozatok.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -318,7 +318,7 @@ namespace Dolgozatok.Infrastructure.Migrations
                     b.Property<DateTime>("Edited")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int?>("FolderId")
+                    b.Property<int>("FolderId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsDeleted")
@@ -717,7 +717,8 @@ namespace Dolgozatok.Infrastructure.Migrations
                     b.HasOne("Dolgozatok.Domain.Entities.Folder", "Folder")
                         .WithMany()
                         .HasForeignKey("FolderId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Folder");
                 });

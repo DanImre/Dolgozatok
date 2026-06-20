@@ -5,34 +5,43 @@ export const TeacherDashboard: React.FC = () => {
   const {
     lang,
     currentPath,
-    currentFolderContents,
+    contents,
+    isLoading,
     handleCreateTest,
+    handleCreateFolder,
+    handleDeleteFolder,
     handleGoToRoot,
     handleNavigateToBreadcrumb,
-    handleItemClick
+    handleFolderClick
   } = useTeacherDashboard();
 
   return (
     <div className="space-y-6">
       
       {/* Action Bar */}
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end gap-3 mb-4">
+        <button
+          onClick={handleCreateFolder}
+          className="flex items-center gap-2 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl shadow-sm transition-all duration-300 font-semibold text-sm"
+        >
+          📁 Create Folder
+        </button>
         <button
           onClick={handleCreateTest}
           className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl shadow-md hover:shadow-emerald-600/20 transition-all duration-300 font-bold text-sm"
         >
-          ➕ {lang.teacherDashboard.createTestButton}
+          ➕ {lang.teacherDashboard?.createTestButton || 'Create Test'}
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
-        {/* Folders Section (File Explorer Style) */}
+        {/* Folders & Tests Section */}
         <div className="bg-[#fcfdfc] border border-slate-200 rounded-2xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
           <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-100/40 rounded-full blur-3xl pointer-events-none group-hover:bg-amber-200/40 transition-all duration-700"></div>
           
           <h3 className="font-display font-bold text-xl text-slate-800 border-b border-slate-100 pb-4 mb-4 flex items-center gap-2 relative">
-            📁 {lang.teacherDashboard.myFolders}
+            📁 {lang.teacherDashboard?.myFolders || 'My Folders'}
           </h3>
 
           {/* Breadcrumb Path */}
@@ -59,19 +68,51 @@ export const TeacherDashboard: React.FC = () => {
           
           {/* Items List */}
           <div className="space-y-2 relative z-10 min-h-[150px]">
-            {currentFolderContents.length === 0 ? (
+            {isLoading ? (
+              <div className="text-sm text-slate-400 italic p-4 text-center">Loading...</div>
+            ) : contents.length === 0 ? (
               <div className="text-sm text-slate-400 italic p-4 text-center">Empty folder</div>
             ) : (
-              currentFolderContents.map(item => (
-                <div 
-                  key={item.id}
-                  onClick={() => handleItemClick(item)}
-                  className={`flex items-center gap-3 p-3 rounded-xl border transition-colors ${item.type === 'folder' ? 'border-transparent hover:bg-slate-50 hover:border-slate-200 cursor-pointer' : 'bg-white border-slate-100 cursor-default shadow-sm'}`}
-                >
-                  <span className="text-xl">{item.type === 'folder' ? '📁' : '📄'}</span>
-                  <span className="font-semibold text-slate-700">{item.name}</span>
-                </div>
-              ))
+              contents.map(item => {
+                if (item.type === 0) { // Folder
+                  return (
+                    <div 
+                      key={`folder-${item.id}`}
+                      onClick={() => handleFolderClick(item)}
+                      className="flex flex-row items-center justify-between p-3 rounded-xl border border-transparent hover:bg-slate-50 hover:border-slate-200 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">📁</span>
+                        <span className="font-semibold text-slate-700">{item.name}</span>
+                      </div>
+                      <button
+                        onClick={(e) => handleDeleteFolder(e, item.id)}
+                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                        title="Delete folder recursively"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  );
+                } else { // Test
+                  return (
+                    <div 
+                      key={`test-${item.id}`}
+                      className="flex items-center justify-between p-3 rounded-xl border bg-white border-slate-100 cursor-default shadow-sm transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">📄</span>
+                        <div>
+                          <div className="font-semibold text-slate-700">{item.name}</div>
+                          {item.edited && (
+                            <div className="text-xs text-slate-400">Edited: {new Date(item.edited).toLocaleDateString()}</div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+              })
             )}
           </div>
         </div>
@@ -81,7 +122,7 @@ export const TeacherDashboard: React.FC = () => {
           <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-blue-100/40 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-200/40 transition-all duration-700"></div>
           
           <h3 className="font-display font-bold text-xl text-slate-800 border-b border-slate-100 pb-4 mb-5 flex items-center gap-2 relative">
-            🎓 {lang.teacherDashboard.myClasses}
+            🎓 {lang.teacherDashboard?.myClasses || 'My Classes'}
           </h3>
           
           {/* Dummy UI for Classes */}

@@ -27,7 +27,7 @@ export const useHome = () => {
     setTestsLoading(true);
     setTestsError(null);
     try {
-      const data = await api.get<TestItem[]>('/DatabaseTest');
+      const data = await api.get<TestItem[]>('/Test');
       setTests(data || []);
     } catch (err: any) {
       console.error('Failed to fetch tests:', err);
@@ -48,11 +48,11 @@ export const useHome = () => {
     try {
       // Create a test object
       // Note: FolderId is hardcoded to 1 (which assumes a folder exists or DB constraints are bypassed)
-      await api.post('/DatabaseTest', {
+      await api.post('/Test', {
         name: newTestName.trim(),
         created: new Date().toISOString(),
         edited: new Date().toISOString(),
-        folderId: 1,
+        folderId: null,
         originalTestId: 0,
         isDeleted: false
       });

@@ -56,6 +56,8 @@ export const hu: TranslationKeys = {
     defaultTestTitle: "Névtelen teszt",
     cancel: "Mégsem",
     saveTest: "Teszt mentése",
+    saving: "Mentés folyamatban...",
+    saved: "Mentve!",
     noPages: "Még nincsenek oldalak",
     noPagesSub: "Kezdje egy új oldal hozzáadásával.",
     addFirstPage: "Első oldal hozzáadása",

@@ -2,12 +2,18 @@ import { useState, useEffect } from 'react';
 import type { Test, Page } from '../../types/testEditor';
 import { useTranslation } from '../../locales/LanguageContext';
 
+import { api } from '../../services/api';
+
 export const useCreateTest = () => {
     const { lang, language } = useTranslation();
     const [test, setTest] = useState<Test>({
         title: lang.createTest.defaultTestTitle,
         pages: []
     });
+    
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [saveSuccess, setSaveSuccess] = useState(false);
 
     useEffect(() => {
         setTest(prev => {
@@ -55,9 +61,47 @@ export const useCreateTest = () => {
     };
 
     const saveTest = async () => {
-        // Placeholder for saving the test to the API
-        console.log('Saving test payload:', test);
-        alert('Test saved (check console)');
+        setIsSaving(true);
+        setSaveError(null);
+        setSaveSuccess(false);
+
+        try {
+            const payload = {
+                name: test.title,
+                created: new Date().toISOString(),
+                edited: new Date().toISOString(),
+                folderId: localStorage.getItem('selectedFolderId') ? parseInt(localStorage.getItem('selectedFolderId')!) : null,
+                originalTestId: 0,
+                isDeleted: false,
+                pages: test.pages.map((p, pIndex) => ({
+                    number: pIndex + 1,
+                    isRandomized: p.isRandomized,
+                    tasks: p.tasks.map((t, tIndex) => ({
+                        header: t.header,
+                        number: tIndex + 1,
+                        isRandomized: t.isRandomized,
+                        type: t.type,
+                        taskElements: t.taskElements.map(te => ({
+                            body: te.body,
+                            correctAnswer: te.correctAnswer,
+                            points: te.points,
+                            requiresManualGrading: te.requiresManualGrading,
+                            isRandomized: te.isRandomized
+                        }))
+                    }))
+                }))
+            };
+
+            await api.post('/Test', payload);
+            
+            setSaveSuccess(true);
+            setTimeout(() => setSaveSuccess(false), 3000);
+        } catch (error: any) {
+            console.error('Failed to save test:', error);
+            setSaveError(error.message || 'Failed to save test');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return {
@@ -67,6 +111,9 @@ export const useCreateTest = () => {
         deletePage,
         updateTitle,
         movePage,
-        saveTest
+        saveTest,
+        isSaving,
+        saveError,
+        saveSuccess
     };
 };

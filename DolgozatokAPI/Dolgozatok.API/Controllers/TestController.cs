@@ -1,17 +1,18 @@
-﻿using Dolgozatok.Application.Interfaces;
+using Dolgozatok.Application.Interfaces;
 using Dolgozatok.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Dolgozatok.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class DatabaseTestController : ControllerBase
+    public class TestController : ControllerBase
     {
-        private readonly ILogger<DatabaseTestController> _logger;
+        private readonly ILogger<TestController> _logger;
         private readonly ITestService _testRepository;
 
-        public DatabaseTestController(ILogger<DatabaseTestController> logger, ITestService testRepository)
+        public TestController(ILogger<TestController> logger, ITestService testRepository)
         {
             _logger = logger;
             _testRepository = testRepository;
@@ -25,6 +26,7 @@ namespace Dolgozatok.API.Controllers
         }
 
         [HttpPost(Name = "AddTest")]
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> AddTest([FromBody] Test test)
         {
             if (test == null) 

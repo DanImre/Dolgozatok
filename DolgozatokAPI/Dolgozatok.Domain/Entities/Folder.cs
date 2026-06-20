@@ -1,4 +1,4 @@
-﻿namespace Dolgozatok.Domain.Entities
+namespace Dolgozatok.Domain.Entities
 {
     public class Folder
     {
@@ -8,5 +8,6 @@
         public Folder? Parent { get; set; }
         public int? OwnerId { get; set; }
         public User? Owner { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../locales/LanguageContext';
 
 export const CreateTest: React.FC = () => {
-  const { test, addPage, updatePage, deletePage, updateTitle, movePage, saveTest } = useCreateTest();
+  const { test, addPage, updatePage, deletePage, updateTitle, movePage, saveTest, isSaving, saveSuccess } = useCreateTest();
   const navigate = useNavigate();
   const { lang, language, setLanguage } = useTranslation();
   const t = lang.createTest;
@@ -57,10 +57,15 @@ export const CreateTest: React.FC = () => {
             </button>
             <button 
               onClick={saveTest}
-              className="px-4 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg font-medium flex items-center gap-2 transition-colors shadow-sm"
+              disabled={isSaving}
+              className={`px-4 py-2 text-white rounded-lg font-medium flex items-center gap-2 transition-colors shadow-sm ${
+                isSaving ? 'bg-emerald-400 cursor-not-allowed' : 
+                saveSuccess ? 'bg-emerald-500 hover:bg-emerald-600' :
+                'bg-emerald-600 hover:bg-emerald-700'
+              }`}
             >
               <Save size={18} />
-              {t.saveTest}
+              {isSaving ? t.saving : saveSuccess ? t.saved : t.saveTest}
             </button>
           </div>
         </div>

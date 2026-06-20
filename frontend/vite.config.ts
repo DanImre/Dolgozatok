@@ -16,7 +16,8 @@ export default defineConfig({
         secure: false,
       },
 
-      '/DatabaseTest': {
+
+      '/Test': {
         target: 'https://localhost:7173',
         changeOrigin: true,
         secure: false,

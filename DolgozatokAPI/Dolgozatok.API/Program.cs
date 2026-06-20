@@ -42,8 +42,12 @@ namespace Dolgozatok.API
             // Custom services
             builder.Services.AddScoped<ITestService, TestService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IFolderService, FolderService>();
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(options =>
+            {
+                options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+            });
             builder.Services.AddOpenApi();
 
             // PostgreSQL
