@@ -70,6 +70,8 @@ export interface TranslationKeys {
     addQuestionElement: string;
     addTextSegment: string;
     addBlank: string;
+    addItem: string;
+    addCategory: string;
     defaultBlankText: string;
     ptsLabel: string;
     manualGrade: string;
@@ -103,6 +105,8 @@ export interface TranslationKeys {
       select: string;
       trueOption: string;
       falseOption: string;
+      categoryName: string;
+      itemText: string;
     };
   };
 }

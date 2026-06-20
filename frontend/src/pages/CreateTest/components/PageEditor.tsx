@@ -22,12 +22,12 @@ export const PageEditor: React.FC<PageEditorProps> = ({ page, pageIndex, onUpdat
     const t = lang.createTest;
 
     const taskTypeOptions = [
-        { value: TaskTypes.MultipleChoice, label: t.taskTypes.multipleChoice },
         { value: TaskTypes.TrueOrFalse, label: t.taskTypes.trueOrFalse },
+        { value: TaskTypes.MultipleChoice, label: t.taskTypes.multipleChoice },
+        { value: TaskTypes.Numerical, label: t.taskTypes.numerical },
         { value: TaskTypes.TextInput, label: t.taskTypes.textInput },
-        { value: TaskTypes.FillInTheBlanks, label: t.taskTypes.fillInTheBlanks },
         { value: TaskTypes.Matching, label: t.taskTypes.matching },
-        { value: TaskTypes.Numerical, label: t.taskTypes.numerical }
+        { value: TaskTypes.FillInTheBlanks, label: t.taskTypes.fillInTheBlanks }
     ];
 
     return (

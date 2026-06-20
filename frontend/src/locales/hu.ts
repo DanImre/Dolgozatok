@@ -72,6 +72,8 @@ export const hu: TranslationKeys = {
     addQuestionElement: "Kérdés hozzáadása",
     addTextSegment: "Szövegrész hozzáadása",
     addBlank: "Üres hely hozzáadása",
+    addItem: "Elem hozzáadása",
+    addCategory: "Kategória hozzáadása",
     defaultBlankText: "Üres hely",
     ptsLabel: "Pont:",
     manualGrade: "Kézi javítás",
@@ -104,7 +106,9 @@ export const hu: TranslationKeys = {
       correctAnswer: "Helyes válasz...",
       select: "Kiválasztás...",
       trueOption: "Igaz",
-      falseOption: "Hamis"
+      falseOption: "Hamis",
+      categoryName: "Kategória neve",
+      itemText: "Elem szövege"
     }
   }
 };

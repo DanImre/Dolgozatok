@@ -72,6 +72,8 @@ export const en: TranslationKeys = {
     addQuestionElement: "Add Question Element",
     addTextSegment: "Add Text Segment",
     addBlank: "Add Blank",
+    addItem: "Add Item",
+    addCategory: "Add Category",
     defaultBlankText: "Blank",
     ptsLabel: "Pts:",
     manualGrade: "Manual Grade",
@@ -104,7 +106,9 @@ export const en: TranslationKeys = {
       correctAnswer: "Correct answer...",
       select: "Select...",
       trueOption: "True",
-      falseOption: "False"
+      falseOption: "False",
+      categoryName: "Category Name",
+      itemText: "Item text"
     }
   }
 };
