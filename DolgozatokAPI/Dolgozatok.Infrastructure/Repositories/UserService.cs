@@ -1,6 +1,7 @@
 using Dolgozatok.Application.Interfaces;
 using Dolgozatok.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Task = System.Threading.Tasks.Task;
 
 namespace Dolgozatok.Infrastructure.Repositories
 {
@@ -19,7 +20,7 @@ namespace Dolgozatok.Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Id == Id && !u.IsDeleted);
         }
 
-        public async System.Threading.Tasks.Task AddUserAsync(User user)
+        public async Task AddUserAsync(User user)
         {
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();

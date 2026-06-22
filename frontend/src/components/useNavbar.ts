@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 export const useNavbar = () => {
   const { lang, language, setLanguage } = useTranslation();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const toggleLanguage = () => {
@@ -19,6 +19,7 @@ export const useNavbar = () => {
     lang,
     language,
     toggleLanguage,
+    user,
     logout,
     handleNavigateHome
   };

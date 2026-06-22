@@ -9,6 +9,8 @@ export interface TranslationKeys {
     home: string;
     login: string;
     logout: string;
+    roleAndClass: string;
+    noEmail: string;
   };
   login: {
     title: string;
@@ -46,8 +48,27 @@ export interface TranslationKeys {
   };
   teacherDashboard: {
     myFolders: string;
-    myClasses: string;
+    classes: string;
     createTestButton: string;
+    createTestDesc: string;
+    testsOverview: string;
+    createFolder: string;
+    emptyFolder: string;
+    students: string;
+    teachers: string;
+    scheduled: string;
+    reviewable: string;
+    addTest: string;
+    open: string;
+    rename: string;
+    delete: string;
+    copy: string;
+    cut: string;
+    nameColumn: string;
+    dateModifiedColumn: string;
+    typeColumn: string;
+    typeFolder: string;
+    typeTest: string;
   };
   createTest: {
     title: string;

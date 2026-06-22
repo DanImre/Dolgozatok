@@ -5,6 +5,7 @@ using Dolgozatok.Application.Enums;
 using Dolgozatok.Application.Interfaces;
 using Dolgozatok.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Task = System.Threading.Tasks.Task;
 
 namespace Dolgozatok.Infrastructure.Repositories
 {
@@ -17,10 +18,10 @@ namespace Dolgozatok.Infrastructure.Repositories
             _context = context;
         }
 
-        public async System.Threading.Tasks.Task<List<FolderContentDTO>> GetRootContentsAsync(int userId)
+        public async Task<List<FolderContentDTO>> GetRootContents(int userId)
         {
             var folders = await _context.Folders
-                .Where(f => f.OwnerId == userId && f.ParentId == null && !f.IsDeleted)
+                .Where(f => f.OwnerId == userId && f.ParentId == null)
                 .Select(f => new FolderContentDTO
                 {
                     Id = f.Id,
@@ -32,7 +33,7 @@ namespace Dolgozatok.Infrastructure.Repositories
                 .ToListAsync();
 
             var tests = await _context.Tests
-                .Where(t => t.FolderId == null && !t.IsDeleted)
+                .Where(t => t.FolderId == null)
                 .Select(t => new FolderContentDTO
                 {
                     Id = t.Id,
@@ -50,14 +51,14 @@ namespace Dolgozatok.Infrastructure.Repositories
             return combined.OrderBy(c => c.Type).ThenBy(c => c.Name).ToList();
         }
 
-        public async System.Threading.Tasks.Task<List<FolderContentDTO>?> GetFolderContentsAsync(int folderId, int userId)
+        public async Task<List<FolderContentDTO>?> GetFolderContents(int folderId, int userId)
         {
             // Verify folder belongs to user
-            var folder = await _context.Folders.FirstOrDefaultAsync(f => f.Id == folderId && f.OwnerId == userId && !f.IsDeleted);
+            var folder = await _context.Folders.FirstOrDefaultAsync(f => f.Id == folderId && f.OwnerId == userId);
             if (folder == null) return null;
 
             var folders = await _context.Folders
-                .Where(f => f.ParentId == folderId && !f.IsDeleted)
+                .Where(f => f.ParentId == folderId)
                 .Select(f => new FolderContentDTO
                 {
                     Id = f.Id,
@@ -69,7 +70,7 @@ namespace Dolgozatok.Infrastructure.Repositories
                 .ToListAsync();
 
             var tests = await _context.Tests
-                .Where(t => t.FolderId == folderId && !t.IsDeleted)
+                .Where(t => t.FolderId == folderId)
                 .Select(t => new FolderContentDTO
                 {
                     Id = t.Id,
@@ -87,24 +88,36 @@ namespace Dolgozatok.Infrastructure.Repositories
             return combined.OrderBy(c => c.Type).ThenBy(c => c.Name).ToList();
         }
 
-        public async System.Threading.Tasks.Task<Folder> CreateFolderAsync(Folder folder)
+        public async Task<Folder> CreateFolder(Folder folder)
         {
             await _context.Folders.AddAsync(folder);
             await _context.SaveChangesAsync();
             return folder;
         }
 
-        public async System.Threading.Tasks.Task DeleteFolderAsync(int folderId, int userId)
+        public async Task DeleteFolder(int folderId, int userId)
         {
             var folder = await _context.Folders.FirstOrDefaultAsync(f => f.Id == folderId && f.OwnerId == userId);
             if (folder != null)
             {
-                await SoftDeleteFolderRecursiveAsync(folderId);
+                await SoftDeleteFolderRecursive(folderId);
                 await _context.SaveChangesAsync();
             }
         }
 
-        private async System.Threading.Tasks.Task SoftDeleteFolderRecursiveAsync(int folderId)
+        public async Task<Folder> RenameFolder(int folderId, string newName, int userId)
+        {
+            var folder = await _context.Folders.FirstOrDefaultAsync(f => f.Id == folderId && f.OwnerId == userId);
+            
+            if (folder == null)
+                throw new System.UnauthorizedAccessException("Folder not found or unauthorized");
+                
+            folder.Name = newName;
+            await _context.SaveChangesAsync();
+            return folder;
+        }
+
+        private async Task SoftDeleteFolderRecursive(int folderId)
         {
             // Delete the folder itself
             var folder = await _context.Folders.FindAsync(folderId);
@@ -112,14 +125,14 @@ namespace Dolgozatok.Infrastructure.Repositories
                 folder.IsDeleted = true;
 
             // Delete tests in this folder
-            var tests = await _context.Tests.Where(t => t.FolderId == folderId && !t.IsDeleted).ToListAsync();
+            var tests = await _context.Tests.Where(t => t.FolderId == folderId).ToListAsync();
             foreach (var test in tests)
                 test.IsDeleted = true;
 
             // Recursively delete child folders
-            var childFolders = await _context.Folders.Where(f => f.ParentId == folderId && !f.IsDeleted).ToListAsync();
+            var childFolders = await _context.Folders.Where(f => f.ParentId == folderId).ToListAsync();
             foreach (var child in childFolders)
-                await SoftDeleteFolderRecursiveAsync(child.Id);
+                await SoftDeleteFolderRecursive(child.Id);
         }
     }
 }

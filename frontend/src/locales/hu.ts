@@ -10,7 +10,9 @@ export const hu: TranslationKeys = {
   navbar: {
     home: "Főoldal",
     login: "Bejelentkezés",
-    logout: "Kijelentkezés"
+    logout: "Kijelentkezés",
+    roleAndClass: "Szerepkör és Osztály",
+    noEmail: "Nincs e-mail megadva"
   },
   login: {
     title: "Üdvözöljük újra",
@@ -48,8 +50,27 @@ export const hu: TranslationKeys = {
   },
   teacherDashboard: {
     myFolders: "Mappáim",
-    myClasses: "Osztályaim",
-    createTestButton: "Teszt létrehozása"
+    classes: "Osztályok",
+    createTestButton: "Teszt létrehozása",
+    createTestDesc: "Tervezzen és osszon meg új feladatsort a diákjainak.",
+    testsOverview: "Tesztek áttekintése",
+    createFolder: "Mappa létrehozása",
+    emptyFolder: "Ez a mappa üres",
+    students: "Diák",
+    teachers: "Tanár",
+    scheduled: "Kitölthető",
+    reviewable: "Megtekinthető",
+    addTest: "Teszt létrehozása",
+    open: "Megnyitás",
+    rename: "Átnevezés",
+    delete: "Törlés",
+    copy: "Másolás",
+    cut: "Kivágás",
+    nameColumn: "Név",
+    dateModifiedColumn: "Módosítás dátuma",
+    typeColumn: "Típus",
+    typeFolder: "Mappa",
+    typeTest: "Teszt"
   },
   createTest: {
     title: "Új teszt létrehozása",

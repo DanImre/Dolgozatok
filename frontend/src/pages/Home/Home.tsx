@@ -40,44 +40,9 @@ export const Home: React.FC = () => {
       {/* Premium Academic Navbar */}
       <Navbar />
 
-      {/* Main Grid Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Left Column: User Profile Details */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-[#fcfdfc] border border-slate-200 rounded-2xl p-6 relative overflow-hidden group shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-            <div className="absolute -top-20 -left-20 w-40 h-40 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-200/40 transition-all duration-700"></div>
-            
-            <h3 className="font-display font-bold text-xl text-slate-800 border-b border-slate-100 pb-4 mb-5 flex items-center gap-2">
-              👤 {lang.home.profileInfo}
-            </h3>
-
-            <div className="space-y-4 font-medium text-sm">
-              <div className="flex flex-col bg-slate-50/80 p-3 rounded-xl border border-slate-100">
-                <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-0.5">{lang.home.realName}</span>
-                <span className="text-slate-800 text-base font-bold">{user?.realName}</span>
-              </div>
-
-              <div className="flex flex-col bg-slate-50/80 p-3 rounded-xl border border-slate-100">
-                <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-0.5">{lang.home.email}</span>
-                <span className="text-slate-800 text-base font-bold">{user?.email || lang.home.notSelected}</span>
-              </div>
-
-              <div className="flex flex-col bg-slate-50/80 p-3 rounded-xl border border-slate-100">
-                <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-0.5">{lang.home.className}</span>
-                <span className="text-slate-800 text-base font-bold">
-                  {user?.className ? user.className : "-"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Role-based Dashboard */}
-        <div className="lg:col-span-2">
-          {user?.role === 'Teacher' ? <TeacherDashboard /> : <StudentDashboard />}
-        </div>
-
+      {/* Main Content */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 flex flex-col">
+        {user?.role === 'Teacher' ? <TeacherDashboard /> : <StudentDashboard />}
       </main>
     </div>
   );

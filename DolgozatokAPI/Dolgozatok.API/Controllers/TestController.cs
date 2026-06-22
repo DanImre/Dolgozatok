@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Dolgozatok.API.Controllers
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class TestController : ControllerBase
+    public class TestController : BaseApiController
     {
         private readonly ILogger<TestController> _logger;
         private readonly ITestService _testRepository;
@@ -21,7 +19,7 @@ namespace Dolgozatok.API.Controllers
         [HttpGet(Name = "GetAllTests")]
         public async Task<ActionResult<List<Test>>> GetAllTests()
         {
-            var tests = await _testRepository.GetAllTestsAsync();
+            var tests = await _testRepository.GetAllTests();
             return Ok(tests);
         }
 
@@ -32,8 +30,39 @@ namespace Dolgozatok.API.Controllers
             if (test == null) 
                 return BadRequest();
 
-            await _testRepository.AddTestAsync(test);
+            await _testRepository.AddTest(test);
             return CreatedAtRoute("GetAllTests", null);
+        }
+
+        [HttpGet("{id}", Name = "GetTestById")]
+        public async Task<ActionResult<Test>> GetTestById(int id)
+        {
+            var test = await _testRepository.GetTestById(id);
+            if (test == null)
+                return NotFound();
+            return Ok(test);
+        }
+
+        [HttpPut("{id}", Name = "UpdateTest")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> UpdateTest(int id, [FromBody] Test test)
+        {
+            if (test == null || test.Id != id)
+                return BadRequest();
+
+            try
+            {
+                // In a real app we'd get the user ID from claims. Let's assume 0 for now if not needed, 
+                // but actually we can parse it if needed. The TestService currently doesn't use userId.
+                await _testRepository.UpdateTest(test, 0); 
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message == "Test not found")
+                    return NotFound();
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

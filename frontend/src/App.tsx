@@ -78,7 +78,7 @@ function App() {
             />
             
             <Route
-              path="/createtest"
+              path="/createtest/:id?"
               element={
                 <ProtectedRoute allowedRoles={['Teacher']}>
                   <CreateTest />

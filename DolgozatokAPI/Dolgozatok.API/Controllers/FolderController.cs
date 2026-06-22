@@ -11,10 +11,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Dolgozatok.API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
     [Authorize(Roles = "Teacher")]
-    public class FolderController : ControllerBase
+    public class FolderController : BaseApiController
     {
         private readonly IFolderService _folderService;
 
@@ -38,7 +36,7 @@ namespace Dolgozatok.API.Controllers
             try
             {
                 var userId = GetCurrentUserId();
-                var contents = await _folderService.GetRootContentsAsync(userId);
+                var contents = await _folderService.GetRootContents(userId);
                 return Ok(contents);
             }
             catch (UnauthorizedAccessException)
@@ -53,7 +51,7 @@ namespace Dolgozatok.API.Controllers
             try
             {
                 var userId = GetCurrentUserId();
-                var contents = await _folderService.GetFolderContentsAsync(id, userId);
+                var contents = await _folderService.GetFolderContents(id, userId);
                 if (contents == null)
                     return NotFound("Folder not found or you don't have access.");
                 
@@ -85,7 +83,7 @@ namespace Dolgozatok.API.Controllers
                     IsDeleted = false
                 };
 
-                var createdFolder = await _folderService.CreateFolderAsync(newFolder);
+                var createdFolder = await _folderService.CreateFolder(newFolder);
                 return Ok(new FolderContentDTO 
                 { 
                     Id = createdFolder.Id, 
@@ -107,8 +105,29 @@ namespace Dolgozatok.API.Controllers
             try
             {
                 var userId = GetCurrentUserId();
-                await _folderService.DeleteFolderAsync(id, userId);
+                await _folderService.DeleteFolder(id, userId);
                 return NoContent();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Unauthorized();
+            }
+        }
+        [HttpPut("{id}/Rename")]
+        public async Task<ActionResult<FolderContentDTO>> RenameFolder(int id, [FromBody] string name)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                var folder = await _folderService.RenameFolder(id, name, userId);
+                return Ok(new FolderContentDTO 
+                { 
+                    Id = folder.Id, 
+                    Name = folder.Name,
+                    Type = ContentType.Folder,
+                    Created = null,
+                    Edited = null
+                });
             }
             catch (UnauthorizedAccessException)
             {

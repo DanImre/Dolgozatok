@@ -10,7 +10,9 @@ export const en: TranslationKeys = {
   navbar: {
     home: "Home",
     login: "Login",
-    logout: "Log Out"
+    logout: "Log Out",
+    roleAndClass: "Role & Class",
+    noEmail: "No email provided"
   },
   login: {
     title: "Welcome Back",
@@ -48,8 +50,27 @@ export const en: TranslationKeys = {
   },
   teacherDashboard: {
     myFolders: "My Folders",
-    myClasses: "My Classes",
-    createTestButton: "Create Test"
+    classes: "Classes",
+    createTestButton: "Create Test",
+    createTestDesc: "Design and publish a new assessment for your students.",
+    testsOverview: "Tests Overview",
+    createFolder: "Create Folder",
+    emptyFolder: "This folder is empty",
+    students: "Students",
+    teachers: "Teachers",
+    scheduled: "Takable",
+    reviewable: "Reviewable",
+    addTest: "Create Test",
+    open: "Open",
+    rename: "Rename",
+    delete: "Delete",
+    copy: "Copy",
+    cut: "Cut",
+    nameColumn: "Name",
+    dateModifiedColumn: "Date Modified",
+    typeColumn: "Type",
+    typeFolder: "Folder",
+    typeTest: "Test"
   },
   createTest: {
     title: "Create a New Test",
