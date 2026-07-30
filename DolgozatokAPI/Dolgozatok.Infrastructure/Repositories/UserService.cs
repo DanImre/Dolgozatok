@@ -16,7 +16,7 @@ namespace Dolgozatok.Infrastructure.Repositories
         public async Task<User?> GetUserById(int Id)
         {
             return await _context.Users
-                .Include(u => u.Class)
+                .Include(u => u.Classes)
                 .FirstOrDefaultAsync(u => u.Id == Id && !u.IsDeleted);
         }
 

@@ -86,9 +86,9 @@ namespace Dolgozatok.API.Extensions
             await context.SaveChangesAsync();
 
             // 4. Update Teacher Domain User ClassId
-            var tUser = await context.Users.FindAsync(teacherId);
-            if (tUser != null)
-                tUser.ClassId = teacherClass.Id;
+            var tUser = await context.Users.Include(u => u.Classes).FirstOrDefaultAsync(u => u.Id == teacherId);
+            if (tUser != null && !tUser.Classes.Any(c => c.Id == teacherClass.Id))
+                tUser.Classes.Add(teacherClass);
 
             // 5. Ensure Test Student
             var studentEmail = "test.student@test.com";
@@ -116,16 +116,16 @@ namespace Dolgozatok.API.Extensions
                 var studentDomainUser = new User
                 {
                     Id = studentIdentityUser.Id,
-                    RealName = "Test Student",
-                    ClassId = studentClass.Id
+                    RealName = "Test Student"
                 };
+                studentDomainUser.Classes.Add(studentClass);
                 context.Users.Add(studentDomainUser);
             }
             else
             {
-                var sUser = await context.Users.FindAsync(studentIdentityUser.Id);
-                if (sUser != null)
-                    sUser.ClassId = studentClass.Id;
+                var sUser = await context.Users.Include(u => u.Classes).FirstOrDefaultAsync(u => u.Id == studentIdentityUser.Id);
+                if (sUser != null && !sUser.Classes.Any(c => c.Id == studentClass.Id))
+                    sUser.Classes.Add(studentClass);
             }
 
             await context.SaveChangesAsync();

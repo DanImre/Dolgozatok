@@ -27,12 +27,12 @@ namespace Dolgozatok.API.Extensions
             var identity = await base.GenerateClaimsAsync(user);
 
             var domainUser = await _dbContext.Set<Domain.Entities.User>()
-                .Include(u => u.Class)
+                .Include(u => u.Classes)
                 .FirstOrDefaultAsync(u => u.Id == user.Id);
 
             if (domainUser != null)
             {
-                if (domainUser.Class == null || domainUser.Class.IsTeacherClass)
+                if (domainUser.Classes == null || !domainUser.Classes.Any() || domainUser.Classes.Any(c => c.IsTeacherClass))
                 {
                     identity.AddClaim(new Claim(ClaimTypes.Role, "Teacher"));
                 }

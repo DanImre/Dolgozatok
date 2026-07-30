@@ -9,7 +9,7 @@ export interface TranslationKeys {
     home: string;
     login: string;
     logout: string;
-    roleAndClass: string;
+    classLabel: string;
     noEmail: string;
   };
   login: {
@@ -69,6 +69,27 @@ export interface TranslationKeys {
     typeColumn: string;
     typeFolder: string;
     typeTest: string;
+    createClass: string;
+    className: string;
+    cancel: string;
+    create: string;
+    classManagement: string;
+    placeholderClass: string;
+    placeholderFolder: string;
+    noClassesFound: string;
+    noClassesSubtext: string;
+    deactivateCode: string;
+    activateCode: string;
+    generateNewCode: string;
+    addStudent: string;
+    areYouSure: string;
+    removeStudent: string;
+    addStudentManually: string;
+    addStudentManuallyDesc: string;
+    studentName: string;
+    studentEmail: string;
+    generateLoginToken: string;
+    generatedTokenMessage: string;
   };
   createTest: {
     title: string;

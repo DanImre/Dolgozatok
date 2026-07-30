@@ -1,3 +1,7 @@
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Dolgozatok.Domain.Entities;
 using Dolgozatok.Infrastructure.Models;
 using Microsoft.AspNetCore.Identity;
@@ -26,6 +30,39 @@ namespace Dolgozatok.Infrastructure
         {
 
         }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            var newOrModifiedClasses = ChangeTracker.Entries<Class>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+                .Select(e => e.Entity)
+                .ToList();
+
+            if (newOrModifiedClasses.Any())
+            {
+                const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                var random = new Random();
+                foreach (var c in newOrModifiedClasses)
+                {
+                    if (string.IsNullOrEmpty(c.JoinCode) || c.JoinCode.Length != 6 || c.JoinCode == "123456")
+                    {
+                        c.JoinCode = new string(Enumerable.Repeat(chars, 6).Select(s => s[random.Next(s.Length)]).ToArray());
+                    }
+
+                    while (true)
+                    {
+                        bool exists = await Classes.AnyAsync(existing => existing.JoinCode == c.JoinCode && existing.Id != c.Id, cancellationToken);
+                        if (!exists)
+                            break;
+
+                        c.JoinCode = new string(Enumerable.Repeat(chars, 6).Select(s => s[random.Next(s.Length)]).ToArray());
+                    }
+                }
+            }
+
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -77,9 +114,8 @@ namespace Dolgozatok.Infrastructure
                   .OnDelete(DeleteBehavior.Restrict);
 
                 entity.HasMany(c => c.Students)
-                  .WithOne(u => u.Class)
-                  .HasForeignKey(u => u.ClassId)
-                  .OnDelete(DeleteBehavior.SetNull);
+                  .WithMany(u => u.Classes)
+                  .UsingEntity(j => j.ToTable("ClassStudents"));
 
                 entity.HasMany(c => c.Teachers)
                   .WithMany()

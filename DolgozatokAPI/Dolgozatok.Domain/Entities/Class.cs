@@ -1,4 +1,6 @@
-﻿namespace Dolgozatok.Domain.Entities
+using System.Collections.Generic;
+
+namespace Dolgozatok.Domain.Entities
 {
     public class Class
     {
@@ -9,6 +11,8 @@
         public User? Owner { get; set; }
         public ICollection<User> Students { get; set; } = new List<User>();
         public ICollection<User> Teachers { get; set; } = new List<User>();
+        public string JoinCode { get; set; } = "123456";
+        public bool IsJoinCodeActive { get; set; }
         public bool IsDeleted { get; set; }
     }
 }

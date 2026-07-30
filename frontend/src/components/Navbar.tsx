@@ -55,9 +55,9 @@ export const Navbar: React.FC = () => {
                   </div>
                   <div className="p-2">
                     <div className="px-3 py-2">
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">{lang.navbar?.roleAndClass || 'Role & Class'}</span>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">{lang.navbar?.classLabel || 'Class'}</span>
                       <p className="text-sm text-slate-700 font-medium">
-                        {user.role} {user.className ? `• ${user.className}` : ''}
+                        {user.className || '--'}
                       </p>
                     </div>
                   </div>

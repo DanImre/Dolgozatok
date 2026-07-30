@@ -43,12 +43,7 @@ export const Login: React.FC = () => {
           </p>
         </div>
 
-        {/* Card Container with Tasteful Academic Styling */}
         <div className="mt-8 bg-[#fcfdfc] border border-slate-200 py-8 px-6 sm:px-10 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden group">
-          {/* Decorative soft green glows behind the card content */}
-          <div className="absolute -top-20 -left-20 w-40 h-40 bg-emerald-100/60 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-200/50 transition-all duration-700"></div>
-          <div className="absolute -bottom-20 -right-20 w-40 h-40 bg-teal-100/60 rounded-full blur-3xl pointer-events-none group-hover:bg-teal-200/50 transition-all duration-700"></div>
-
           <form className="space-y-6 relative z-10" onSubmit={handleSubmit}>
             {error && (
               <div className="p-4 bg-red-50 border border-red-200 text-red-600 rounded-xl text-sm font-medium flex items-center gap-2 shadow-sm">
@@ -99,11 +94,11 @@ export const Login: React.FC = () => {
                   className="peer sr-only"
                 />
                 <div className="h-5 w-5 rounded border-2 border-slate-300 bg-white peer-checked:bg-emerald-500 peer-checked:border-emerald-500 transition-all duration-300 flex items-center justify-center group-hover:border-emerald-400 peer-focus-visible:ring-4 peer-focus-visible:ring-emerald-500/20">
-                  <svg 
-                    className={`w-3.5 h-3.5 text-white transform transition-transform duration-300 ${rememberMe ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`} 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    stroke="currentColor" 
+                  <svg
+                    className={`w-3.5 h-3.5 text-white transform transition-transform duration-300 ${rememberMe ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                     strokeWidth="3"
                   >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

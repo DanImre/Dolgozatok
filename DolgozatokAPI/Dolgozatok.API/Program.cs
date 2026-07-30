@@ -43,6 +43,7 @@ namespace Dolgozatok.API
             builder.Services.AddScoped<ITestService, TestService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IFolderService, FolderService>();
+            builder.Services.AddScoped<IClassService, ClassService>();
 
             builder.Services.AddControllers(options =>
             {

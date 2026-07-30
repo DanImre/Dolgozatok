@@ -46,8 +46,9 @@ namespace Dolgozatok.API.Controllers
             {
                 id = domainUser.Id,
                 realName = domainUser.RealName,
-                classId = domainUser.ClassId,
-                className = domainUser.Class?.ClassName,
+                className = domainUser.Classes != null && domainUser.Classes.Any() 
+                    ? string.Join(", ", domainUser.Classes.Select(c => c.ClassName)) 
+                    : null,
                 role = role
             });
         }
@@ -78,8 +79,7 @@ namespace Dolgozatok.API.Controllers
             var domainUser = new User
             {
                 Id = identityUser.Id, // Link both entities via the shared integer ID
-                RealName = model.RealName,
-                ClassId = model.ClassId
+                RealName = model.RealName
             };
 
             try

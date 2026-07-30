@@ -11,7 +11,7 @@ export const hu: TranslationKeys = {
     home: "Főoldal",
     login: "Bejelentkezés",
     logout: "Kijelentkezés",
-    roleAndClass: "Szerepkör és Osztály",
+    classLabel: "Osztály",
     noEmail: "Nincs e-mail megadva"
   },
   login: {
@@ -70,7 +70,28 @@ export const hu: TranslationKeys = {
     dateModifiedColumn: "Módosítás dátuma",
     typeColumn: "Típus",
     typeFolder: "Mappa",
-    typeTest: "Teszt"
+    typeTest: "Teszt",
+    createClass: "Osztály létrehozása",
+    className: "Osztály neve",
+    cancel: "Mégsem",
+    create: "Létrehozás",
+    classManagement: "Osztálykezelés",
+    placeholderClass: "Pl. 10.A Matematika",
+    placeholderFolder: "Pl. Fizika témazárók",
+    noClassesFound: "Még nincsenek osztályok.",
+    noClassesSubtext: "Kattints a fenti + gombra az első osztály létrehozásához.",
+    deactivateCode: "Kód Deaktiválása",
+    activateCode: "Kód Aktiválása",
+    generateNewCode: "Új Kód Generálása",
+    addStudent: "Diák Hozzáadása",
+    areYouSure: "Biztos vagy benne?",
+    removeStudent: "Diák Eltávolítása",
+    addStudentManually: "Diák Hozzáadása Kézzel",
+    addStudentManuallyDesc: "Hozz létre fiókot egy diáknak, aki nem tud csatlakozni. Kapsz egy egyszer használatos tokent, amivel bejelentkezhet.",
+    studentName: "Diák Neve",
+    studentEmail: "Diák Email Címe",
+    generateLoginToken: "Bejelentkezési Token Generálása",
+    generatedTokenMessage: "Mentsd el ezt a tokent és add át a diáknak. Szüksége lesz rá az első bejelentkezéskor."
   },
   createTest: {
     title: "Új teszt létrehozása",

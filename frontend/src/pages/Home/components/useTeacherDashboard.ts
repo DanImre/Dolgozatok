@@ -3,12 +3,23 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../../../locales/LanguageContext';
 import { api } from '../../../services/api';
 
+import { classService } from '../../../services/classService';
+
 export type FolderItemDTO = {
   id: number;
   name: string;
   type: 0 | 1; // 0 = Folder, 1 = Test (matching C# Enum)
   created: string | null;
   edited: string | null;
+};
+
+export type ClassItemDTO = {
+  id: number;
+  className: string;
+  studentCount: number;
+  teacherCount: number;
+  joinCode: string;
+  isJoinCodeActive: boolean;
 };
 
 export type BreadcrumbItem = {
@@ -21,6 +32,7 @@ export const useTeacherDashboard = () => {
   const navigate = useNavigate();
   const [currentPath, setCurrentPath] = useState<BreadcrumbItem[]>([]);
   const [contents, setContents] = useState<FolderItemDTO[]>([]);
+  const [classes, setClasses] = useState<ClassItemDTO[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -45,11 +57,24 @@ export const useTeacherDashboard = () => {
     }
   };
 
+  const fetchClasses = async () => {
+    try {
+      const data = await classService.getClasses();
+      setClasses(data);
+    } catch (error) {
+      console.error('Failed to fetch classes', error);
+    }
+  };
+
   useEffect(() => {
     fetchContents(currentFolderId);
     setSelectedIds(new Set());
     setContextMenu(prev => ({...prev, isOpen: false}));
   }, [currentFolderId]);
+
+  useEffect(() => {
+    fetchClasses();
+  }, []);
 
   useEffect(() => {
     const handleGlobalClick = () => {
@@ -122,36 +147,25 @@ export const useTeacherDashboard = () => {
     });
   };
 
-  const handleCreateFolder = async () => {
-    const name = prompt(lang.teacherDashboard?.createFolder || 'Folder Name:');
-    if (!name?.trim()) return;
+  const handleCreateFolder = async (name: string) => {
+    if (!name.trim()) return;
     
-    try {
-      await api.post('/api/Folder', { name: name.trim(), parentId: currentFolderId });
-      fetchContents(currentFolderId);
-    } catch (error) {
-      console.error('Failed to create folder', error);
-      alert('Failed to create folder.');
-    }
+    await api.post('/api/Folder', { name: name.trim(), parentId: currentFolderId });
+    await fetchContents(currentFolderId);
   };
 
-  const handleRenameItem = async () => {
-    if (selectedIds.size !== 1) return;
-    const id = Array.from(selectedIds)[0];
+  const handleRenameItem = async (id: number, newName: string) => {
     const item = contents.find(c => c.id === id);
-    if (!item) return;
+    if (!item || !newName.trim() || newName === item.name) return;
 
     if (item.type !== 0) {
       alert("Renaming tests is not implemented on the backend yet.");
       return;
     }
 
-    const newName = prompt(lang.teacherDashboard?.rename || 'New Name:', item.name);
-    if (!newName?.trim() || newName === item.name) return;
-
     try {
       await api.put(`/api/Folder/${id}/Rename`, newName.trim());
-      fetchContents(currentFolderId);
+      await fetchContents(currentFolderId);
     } catch (error) {
       console.error('Failed to rename', error);
       alert('Failed to rename item.');
@@ -185,6 +199,7 @@ export const useTeacherDashboard = () => {
     language,
     currentPath,
     contents,
+    classes,
     isLoading,
     selectedIds,
     contextMenu,
@@ -198,6 +213,8 @@ export const useTeacherDashboard = () => {
     handleContextMenu,
     closeContextMenu,
     handleRenameItem,
-    handleDeleteSelected
+    handleDeleteSelected,
+    fetchClasses,
+    currentFolderId
   };
 };

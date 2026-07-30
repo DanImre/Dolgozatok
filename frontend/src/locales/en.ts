@@ -11,7 +11,7 @@ export const en: TranslationKeys = {
     home: "Home",
     login: "Login",
     logout: "Log Out",
-    roleAndClass: "Role & Class",
+    classLabel: "Class",
     noEmail: "No email provided"
   },
   login: {
@@ -70,7 +70,28 @@ export const en: TranslationKeys = {
     dateModifiedColumn: "Date Modified",
     typeColumn: "Type",
     typeFolder: "Folder",
-    typeTest: "Test"
+    typeTest: "Test",
+    createClass: "Create Class",
+    className: "Class Name",
+    cancel: "Cancel",
+    create: "Create",
+    classManagement: "Class Management",
+    placeholderClass: "e.g. 10.A Math",
+    placeholderFolder: "e.g. Science Quizzes",
+    noClassesFound: "No classes yet.",
+    noClassesSubtext: "Click the + button above to create your first class.",
+    deactivateCode: "Deactivate Code",
+    activateCode: "Activate Code",
+    generateNewCode: "Generate New Code",
+    addStudent: "Add Student",
+    areYouSure: "Are you sure?",
+    removeStudent: "Remove Student",
+    addStudentManually: "Add Student Manually",
+    addStudentManuallyDesc: "Create an account for a student who cannot join themselves. You will receive a one-time token they can use to log in.",
+    studentName: "Student Name",
+    studentEmail: "Student Email",
+    generateLoginToken: "Generate Login Token",
+    generatedTokenMessage: "Save this token and give it to the student. They will need it for their first login."
   },
   createTest: {
     title: "Create a New Test",
