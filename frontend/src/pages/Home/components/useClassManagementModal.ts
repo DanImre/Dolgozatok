@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { classService } from '../../../services/classService';
 
 export interface Student {
@@ -138,12 +138,12 @@ export const useClassManagementModal = ({
     }
   };
 
-  const closeAddStudentModal = () => {
+  const closeAddStudentModal = useCallback(() => {
     setIsAddingStudent(false);
     setGeneratedToken(null);
     setNewStudentName('');
     setNewStudentEmail('');
-  };
+  }, []);
 
   return {
     className,

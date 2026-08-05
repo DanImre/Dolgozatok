@@ -78,6 +78,8 @@ export const en: TranslationKeys = {
     classManagement: "Class Management",
     placeholderClass: "e.g. 10.A Math",
     placeholderFolder: "e.g. Science Quizzes",
+    placeholderStudentName: "John Doe",
+    placeholderStudentEmail: "john@example.com",
     noClassesFound: "No classes yet.",
     noClassesSubtext: "Click the + button above to create your first class.",
     deactivateCode: "Deactivate Code",
@@ -91,7 +93,11 @@ export const en: TranslationKeys = {
     studentName: "Student Name",
     studentEmail: "Student Email",
     generateLoginToken: "Generate Login Token",
-    generatedTokenMessage: "Save this token and give it to the student. They will need it for their first login."
+    generatedTokenMessage: "Save this token and give it to the student. They will need it for their first login.",
+    noStudentsYet: "No students in this class yet.",
+    loadingStudents: "Loading students...",
+    studentCreated: "Student Created!",
+    done: "Done"
   },
   createTest: {
     title: "Create a New Test",

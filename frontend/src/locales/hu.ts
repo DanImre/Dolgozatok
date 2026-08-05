@@ -78,6 +78,8 @@ export const hu: TranslationKeys = {
     classManagement: "Osztálykezelés",
     placeholderClass: "Pl. 10.A Matematika",
     placeholderFolder: "Pl. Fizika témazárók",
+    placeholderStudentName: "Kovács János",
+    placeholderStudentEmail: "kovacs.janos@pelda.hu",
     noClassesFound: "Még nincsenek osztályok.",
     noClassesSubtext: "Kattints a fenti + gombra az első osztály létrehozásához.",
     deactivateCode: "Kód Deaktiválása",
@@ -91,7 +93,11 @@ export const hu: TranslationKeys = {
     studentName: "Diák Neve",
     studentEmail: "Diák Email Címe",
     generateLoginToken: "Bejelentkezési Token Generálása",
-    generatedTokenMessage: "Mentsd el ezt a tokent és add át a diáknak. Szüksége lesz rá az első bejelentkezéskor."
+    generatedTokenMessage: "Mentsd el ezt a tokent és add át a diáknak. Szüksége lesz rá az első bejelentkezéskor.",
+    noStudentsYet: "Még nincsenek diákok ebben az osztályban.",
+    loadingStudents: "Diákok betöltése...",
+    studentCreated: "Diák létrehozva!",
+    done: "Kész"
   },
   createTest: {
     title: "Új teszt létrehozása",

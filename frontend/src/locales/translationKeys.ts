@@ -76,6 +76,8 @@ export interface TranslationKeys {
     classManagement: string;
     placeholderClass: string;
     placeholderFolder: string;
+    placeholderStudentName: string;
+    placeholderStudentEmail: string;
     noClassesFound: string;
     noClassesSubtext: string;
     deactivateCode: string;
@@ -90,6 +92,10 @@ export interface TranslationKeys {
     studentEmail: string;
     generateLoginToken: string;
     generatedTokenMessage: string;
+    noStudentsYet: string;
+    loadingStudents: string;
+    studentCreated: string;
+    done: string;
   };
   createTest: {
     title: string;
