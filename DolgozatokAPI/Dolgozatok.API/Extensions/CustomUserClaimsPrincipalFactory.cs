@@ -26,21 +26,50 @@ namespace Dolgozatok.API.Extensions
         {
             var identity = await base.GenerateClaimsAsync(user);
 
-            var domainUser = await _dbContext.Set<Domain.Entities.User>()
-                .Include(u => u.Classes)
-                .FirstOrDefaultAsync(u => u.Id == user.Id);
+            var roles = await UserManager.GetRolesAsync(user);
+            string roleToAssign;
 
-            if (domainUser != null)
+            if (roles != null && roles.Contains("Teacher"))
             {
-                if (domainUser.Classes == null || !domainUser.Classes.Any() || domainUser.Classes.Any(c => c.IsTeacherClass))
+                roleToAssign = "Teacher";
+            }
+            else if (roles != null && roles.Contains("Student"))
+            {
+                roleToAssign = "Student";
+            }
+            else
+            {
+                // Check if user owns or teaches any class
+                bool isTeacher = await _dbContext.Classes.AnyAsync(c => c.OwnerId == user.Id || c.Teachers.Any(t => t.Id == user.Id))
+                    || await _dbContext.ClassTeachers.AnyAsync(ct => ct.TeacherId == user.Id);
+
+                if (isTeacher)
                 {
-                    identity.AddClaim(new Claim(ClaimTypes.Role, "Teacher"));
+                    roleToAssign = "Teacher";
                 }
                 else
                 {
-                    identity.AddClaim(new Claim(ClaimTypes.Role, "Student"));
+                    var domainUser = await _dbContext.Set<Domain.Entities.User>()
+                        .Include(u => u.Classes)
+                        .FirstOrDefaultAsync(u => u.Id == user.Id);
+
+                    if (domainUser != null && domainUser.Classes != null && domainUser.Classes.Any(c => c.IsTeacherClass))
+                    {
+                        roleToAssign = "Teacher";
+                    }
+                    else
+                    {
+                        roleToAssign = "Student";
+                    }
                 }
             }
+
+            var existingRoleClaims = identity.FindAll(ClaimTypes.Role).ToList();
+            foreach (var claim in existingRoleClaims)
+            {
+                identity.RemoveClaim(claim);
+            }
+            identity.AddClaim(new Claim(ClaimTypes.Role, roleToAssign));
 
             return identity;
         }

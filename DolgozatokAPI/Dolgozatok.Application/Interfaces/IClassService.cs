@@ -14,8 +14,12 @@ namespace Dolgozatok.Application.Interfaces
         Task ToggleJoinCodeAsync(int classId, bool isActive, int teacherId);
         Task RenameClassAsync(int classId, string newName, int teacherId);
         Task JoinClassWithCodeAsync(int studentId, string joinCode);
-        Task RemoveStudentAsync(int classId, int studentId, int teacherId);
+        Task RemoveStudentAsync(int classId, int studentId, int teacherId, bool isInvited = false);
         Task<string> ManuallyCreateStudentAsync(int classId, string name, string email, int teacherId);
         Task<IEnumerable<StudentDto>> GetClassStudentsAsync(int classId, int teacherId);
+        Task<CheckStudentResultDto> CheckStudentEmailAsync(int classId, string email, int teacherId);
+        Task AddExistingStudentAsync(int classId, string email, int teacherId);
+        Task RegisterStudentAsync(int classId, string name, string email, int teacherId);
+        Task DeleteClassAsync(int classId, int teacherId);
     }
 }

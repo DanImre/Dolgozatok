@@ -35,6 +35,30 @@ class ApiClient {
     return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
   }
 
+  private async formatError(response: Response): Promise<Error> {
+    const errorText = await response.text().catch(() => 'Unknown error');
+    let message = errorText;
+    let code: string | undefined;
+    try {
+      const json = JSON.parse(errorText);
+      code = json.code;
+      if (json.message) {
+        message = json.message;
+      } else if (Array.isArray(json) && json.length > 0) {
+        code = json[0].code || code;
+        message = json.map((e: any) => e.description || e.message).join(', ');
+      } else if (json.title) {
+        message = json.title;
+      }
+    } catch {
+      // Not JSON
+    }
+    const err: any = new Error(message || `HTTP error! status: ${response.status}`);
+    err.code = code;
+    err.status = response.status;
+    return err;
+  }
+
   async get<T>(url: string): Promise<T> {
     const response = await fetch(url, {
       method: 'GET',
@@ -42,7 +66,7 @@ class ApiClient {
     });
     
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw await this.formatError(response);
     }
     
     return response.json() as Promise<T>;
@@ -56,8 +80,7 @@ class ApiClient {
     });
     
     if (!response.ok) {
-      const errorText = await response.text().catch(() => 'Unknown error');
-      throw new Error(errorText || `HTTP error! status: ${response.status}`);
+      throw await this.formatError(response);
     }
 
     // Handle empty response bodies or simple JSON
@@ -72,8 +95,7 @@ class ApiClient {
     });
     
     if (!response.ok) {
-      const errorText = await response.text().catch(() => 'Unknown error');
-      throw new Error(errorText || `HTTP error! status: ${response.status}`);
+      throw await this.formatError(response);
     }
   }
 
@@ -85,8 +107,7 @@ class ApiClient {
     });
     
     if (!response.ok) {
-      const errorText = await response.text().catch(() => 'Unknown error');
-      throw new Error(errorText || `HTTP error! status: ${response.status}`);
+      throw await this.formatError(response);
     }
 
     const text = await response.text();

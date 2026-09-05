@@ -1,11 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { classService } from '../../../services/classService';
+import { classService, type StudentListItem } from '../../../services/classService';
 
-export interface Student {
-  id: number;
-  name: string;
-  email: string;
-}
+export type Student = StudentListItem;
+export type EmailCheckStatus = 'idle' | 'checking' | 'exists' | 'new';
 
 export interface UseClassManagementModalProps {
   classId: number;
@@ -35,7 +32,10 @@ export const useClassManagementModal = ({
   const [isAddingStudent, setIsAddingStudent] = useState(false);
   const [newStudentName, setNewStudentName] = useState('');
   const [newStudentEmail, setNewStudentEmail] = useState('');
-  const [generatedToken, setGeneratedToken] = useState<string | null>(null);
+  const [emailCheckStatus, setEmailCheckStatus] = useState<EmailCheckStatus>('idle');
+  const [isAlreadyInClass, setIsAlreadyInClass] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isLoadingStudents, setIsLoadingStudents] = useState(false);
 
@@ -49,7 +49,7 @@ export const useClassManagementModal = ({
     setIsJoinCodeActive(initialIsJoinCodeActive);
   }, [initialJoinCode, initialIsJoinCodeActive]);
 
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async () => {
     setIsLoadingStudents(true);
     try {
       const data = await classService.getStudents(classId);
@@ -59,13 +59,13 @@ export const useClassManagementModal = ({
     } finally {
       setIsLoadingStudents(false);
     }
-  };
+  }, [classId]);
 
   useEffect(() => {
     if (classId) {
       fetchStudents();
     }
-  }, [classId]);
+  }, [classId, fetchStudents]);
 
   const handleGenerateCode = async () => {
     try {
@@ -98,11 +98,11 @@ export const useClassManagementModal = ({
     }, 2000);
   };
 
-  const handleConfirmRemove = async (studentId: number) => {
+  const handleConfirmRemove = async (studentId: number, isInvited: boolean = false) => {
     if (deleteTimeout) return;
     try {
-      await classService.removeStudent(classId, studentId);
-      setStudents(students.filter(s => s.id !== studentId));
+      await classService.removeStudent(classId, studentId, isInvited);
+      setStudents(prev => prev.filter(s => s.id !== studentId));
       setDeleteConfirmId(null);
       setErrorMsg(null);
     } catch (err: any) {
@@ -110,17 +110,71 @@ export const useClassManagementModal = ({
     }
   };
 
-  const handleManualAddStudent = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleEmailCheck = async (emailToCheck?: string) => {
+    const email = (emailToCheck ?? newStudentEmail).trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return;
+    }
+
+    setEmailCheckStatus('checking');
+    setErrorMsg(null);
     try {
-      const res = await classService.manuallyCreateStudent(classId, newStudentName, newStudentEmail);
-      setGeneratedToken(res.token);
-      setStudents([...students, { id: Date.now(), name: newStudentName, email: newStudentEmail }]);
-      setNewStudentName('');
-      setNewStudentEmail('');
-      setErrorMsg(null);
+      const result = await classService.checkStudentEmail(classId, email);
+      if (result.exists) {
+        setEmailCheckStatus('exists');
+        setNewStudentName(result.name);
+        setIsAlreadyInClass(result.isAlreadyInClass);
+      } else {
+        setEmailCheckStatus('new');
+        setNewStudentName(result.name || '');
+        setIsAlreadyInClass(result.isAlreadyInClass);
+      }
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to create student manually');
+      console.error('Email check failed', err);
+      setEmailCheckStatus('idle');
+      setErrorMsg(err.message || 'Failed to check student email');
+    }
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setNewStudentEmail(val);
+    if (emailCheckStatus !== 'idle') {
+      setEmailCheckStatus('idle');
+      setNewStudentName('');
+      setIsAlreadyInClass(false);
+    }
+    setErrorMsg(null);
+  };
+
+  const handleStudentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSubmitting || isAlreadyInClass) return;
+
+    setIsSubmitting(true);
+    setErrorMsg(null);
+    try {
+      if (emailCheckStatus === 'exists') {
+        await classService.addExistingStudent(classId, newStudentEmail.trim());
+        setSuccessMsg('Student added successfully!');
+      } else if (emailCheckStatus === 'new') {
+        if (!newStudentName.trim()) {
+          setErrorMsg('Please enter student name.');
+          setIsSubmitting(false);
+          return;
+        }
+        await classService.registerStudent(classId, newStudentName.trim(), newStudentEmail.trim());
+        setSuccessMsg('Registration invitation sent!');
+      }
+
+      await fetchStudents();
+      setTimeout(() => {
+        closeAddStudentModal();
+      }, 1000);
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Failed to process student');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -140,9 +194,13 @@ export const useClassManagementModal = ({
 
   const closeAddStudentModal = useCallback(() => {
     setIsAddingStudent(false);
-    setGeneratedToken(null);
     setNewStudentName('');
     setNewStudentEmail('');
+    setEmailCheckStatus('idle');
+    setIsAlreadyInClass(false);
+    setIsSubmitting(false);
+    setSuccessMsg(null);
+    setErrorMsg(null);
   }, []);
 
   return {
@@ -159,14 +217,19 @@ export const useClassManagementModal = ({
     setNewStudentName,
     newStudentEmail,
     setNewStudentEmail,
-    generatedToken,
+    emailCheckStatus,
+    isAlreadyInClass,
+    isSubmitting,
+    successMsg,
     errorMsg,
     isLoadingStudents,
     handleGenerateCode,
     handleToggleCode,
     handleRemoveClick,
     handleConfirmRemove,
-    handleManualAddStudent,
+    handleEmailChange,
+    handleEmailCheck,
+    handleStudentSubmit,
     handleRenameBlur,
     closeAddStudentModal
   };

@@ -4,7 +4,7 @@ import { LanguageProvider } from './locales/LanguageContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Login } from './pages/Login/Login';
 import { Home } from './pages/Home/Home';
-
+import { Register } from './pages/Register/Register';
 import { CreateTest } from './pages/CreateTest/CreateTest';
 
 const ProtectedRoute = ({ children, allowedRoles }: { children: React.ReactNode, allowedRoles?: string[] }) => {
@@ -66,6 +66,11 @@ function App() {
                   <Login />
                 </PublicRoute>
               }
+            />
+
+            <Route
+              path="/register"
+              element={<Register />}
             />
 
             <Route

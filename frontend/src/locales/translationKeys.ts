@@ -96,6 +96,16 @@ export interface TranslationKeys {
     loadingStudents: string;
     studentCreated: string;
     done: string;
+    registerUser: string;
+    invited: string;
+    enterEmailFirst: string;
+    checkingEmail: string;
+    alreadyInClass: string;
+    invitationSent: string;
+    deleteClass: string;
+    deleteClassWarning: string;
+    deleteClassPermanent: string;
+    deleting: string;
   };
   createTest: {
     title: string;
@@ -157,6 +167,48 @@ export interface TranslationKeys {
       falseOption: string;
       categoryName: string;
       itemText: string;
+    };
+  };
+  register: {
+    title: string;
+    subtitle: string;
+    emailLabel: string;
+    nameLabel: string;
+    futureClassesLabel: string;
+    passwordLabel: string;
+    passwordPlaceholder: string;
+    confirmPasswordLabel: string;
+    confirmPasswordPlaceholder: string;
+    passwordMismatch: string;
+    passwordMinLength: string;
+    passwordCriteriaTitle: string;
+    criteriaMinLength: string;
+    criteriaUppercase: string;
+    criteriaLowercase: string;
+    criteriaDigit: string;
+    criteriaMatch: string;
+    submitButton: string;
+    loading: string;
+    expiredTitle: string;
+    expiredSubtitle: string;
+    goToLogin: string;
+    alreadyRegisteredTitle: string;
+    alreadyRegisteredSubtitle: string;
+    successMessage: string;
+    noClassesAssigned: string;
+    errors: {
+      tokenRequired: string;
+      passwordRequired: string;
+      passwordMismatch: string;
+      passwordMinLength: string;
+      invalidLink: string;
+      alreadyCompleted: string;
+      linkExpired: string;
+      emailAlreadyExists: string;
+      passwordRequiresUpper: string;
+      passwordRequiresLower: string;
+      passwordRequiresDigit: string;
+      genericError: string;
     };
   };
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTeacherDashboard } from './useTeacherDashboard';
-import { Trash2, Home, BookOpen } from 'lucide-react';
+import { Trash2, Home, BookOpen, AlertTriangle } from 'lucide-react';
 import { ClassManagementModal } from './ClassManagementModal';
 import { Modal } from '../../../components/ui/Modal';
 
@@ -19,6 +19,60 @@ export const TeacherDashboard: React.FC = () => {
 
   const [editingItemId, setEditingItemId] = React.useState<number | null>(null);
   const [editingItemName, setEditingItemName] = React.useState('');
+
+  const [classToDelete, setClassToDelete] = React.useState<{ id: number; name: string } | null>(null);
+  const [deleteCountdown, setDeleteCountdown] = React.useState<number>(5);
+  const [isDeletingClass, setIsDeletingClass] = React.useState(false);
+  const [deleteClassError, setDeleteClassError] = React.useState('');
+
+  React.useEffect(() => {
+    if (!classToDelete) {
+      setDeleteCountdown(5);
+      setDeleteClassError('');
+      setIsDeletingClass(false);
+      return;
+    }
+
+    setDeleteCountdown(5);
+    setDeleteClassError('');
+    setIsDeletingClass(false);
+
+    const timer = setInterval(() => {
+      setDeleteCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [classToDelete]);
+
+  const handleRequestDeleteClass = (id: number, name: string) => {
+    setClassToDelete({ id, name });
+  };
+
+  const confirmDeleteClass = async () => {
+    if (!classToDelete || deleteCountdown > 0 || isDeletingClass) return;
+
+    setIsDeletingClass(true);
+    setDeleteClassError('');
+    try {
+      const { classService } = await import('../../../services/classService');
+      await classService.deleteClass(classToDelete.id);
+      if (selectedClass?.id === classToDelete.id) {
+        setSelectedClass(null);
+      }
+      setClassToDelete(null);
+      fetchClasses();
+    } catch (err: any) {
+      console.error('Failed to delete class:', err);
+      setDeleteClassError(err.response?.data?.message || err.message || 'Failed to delete class');
+      setIsDeletingClass(false);
+    }
+  };
 
   const openClassModal = (id: number, name: string, joinCode: string, isActive: boolean) => {
     setSelectedClass({ id, name, joinCode, isActive });
@@ -418,7 +472,20 @@ export const TeacherDashboard: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <span className="text-slate-300 group-hover/class:text-indigo-500 transition-colors group-hover/class:translate-x-1 duration-300 text-sm">➔</span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRequestDeleteClass(c.id, c.className);
+                      }}
+                      className="opacity-0 group-hover/class:opacity-100 p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                      title={lang.teacherDashboard?.deleteClass || "Osztály törlése"}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                    <span className="text-slate-300 group-hover/class:text-indigo-500 transition-colors group-hover/class:translate-x-1 duration-300 text-sm">➔</span>
+                  </div>
                 </div>
               ))
             )}
@@ -440,6 +507,9 @@ export const TeacherDashboard: React.FC = () => {
         }}
         onCodeChange={() => {
           fetchClasses();
+        }}
+        onRequestDelete={(id, name) => {
+          handleRequestDeleteClass(id, name);
         }}
         lang={lang}
       />
@@ -533,6 +603,95 @@ export const TeacherDashboard: React.FC = () => {
             className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
           >
             {isCreatingFolder ? '...' : (lang.teacherDashboard?.create || 'Create')}
+          </button>
+        </div>
+      </Modal>
+
+      {/* Delete Class Confirmation Modal with 5-second countdown */}
+      <Modal
+        isOpen={!!classToDelete}
+        onClose={() => {
+          if (!isDeletingClass) {
+            setClassToDelete(null);
+          }
+        }}
+        title={
+          <div className="flex items-center gap-2 text-red-600 font-bold text-lg sm:text-xl">
+            <AlertTriangle size={22} className="shrink-0 text-red-600" />
+            <span>{lang.teacherDashboard?.deleteClass || "Osztály törlése"}</span>
+          </div>
+        }
+      >
+        <div className="p-6 space-y-4">
+          {deleteClassError && (
+            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium border border-red-200">
+              {deleteClassError}
+            </div>
+          )}
+
+          <p className="text-slate-700 text-sm leading-relaxed">
+            {language === 'hu' ? (
+              <>
+                Biztosan törölni szeretnéd a(z) <span className="font-bold text-slate-900">"{classToDelete?.name}"</span> nevű osztályt?
+              </>
+            ) : (
+              <>
+                Are you sure you want to delete the class <span className="font-bold text-slate-900">"{classToDelete?.name}"</span>?
+              </>
+            )}
+          </p>
+
+          <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
+            <p className="font-bold flex items-center gap-1.5">
+              <span>⚠️</span>
+              <span>{language === 'hu' ? "Figyelem: Ez a művelet nem vonható vissza!" : "Warning: This action cannot be undone!"}</span>
+            </p>
+            <p>
+              {language === 'hu'
+                ? "Az osztály törlésével a hozzárendelt diákok és meghívók automatikusan lekapcsolódnak az osztályról."
+                : "Deleting this class will automatically detach all enrolled students and pending invitations."}
+            </p>
+          </div>
+        </div>
+
+        <div className="p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-3 shrink-0">
+          <button
+            onClick={() => setClassToDelete(null)}
+            disabled={isDeletingClass}
+            className="px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+          >
+            {lang.teacherDashboard?.cancel || "Mégsem"}
+          </button>
+
+          <button
+            onClick={confirmDeleteClass}
+            disabled={deleteCountdown > 0 || isDeletingClass}
+            className={`px-5 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2 ${
+              deleteCountdown > 0 || isDeletingClass
+                ? 'bg-red-300 text-white cursor-not-allowed opacity-75'
+                : 'bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/20 cursor-pointer'
+            }`}
+          >
+            {isDeletingClass ? (
+              <span className="flex items-center gap-1.5">
+                <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span>{lang.teacherDashboard?.deleting || (language === 'hu' ? "Törlés..." : "Deleting...")}</span>
+              </span>
+            ) : deleteCountdown > 0 ? (
+              <span>
+                {language === 'hu'
+                  ? `Törlés (${deleteCountdown} mp)`
+                  : `Delete (${deleteCountdown}s)`}
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5">
+                <Trash2 size={16} />
+                <span>{lang.teacherDashboard?.deleteClassPermanent || (language === 'hu' ? "Végleges törlés" : "Permanently Delete")}</span>
+              </span>
+            )}
           </button>
         </div>
       </Modal>

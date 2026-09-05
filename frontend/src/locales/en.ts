@@ -97,7 +97,17 @@ export const en: TranslationKeys = {
     noStudentsYet: "No students in this class yet.",
     loadingStudents: "Loading students...",
     studentCreated: "Student Created!",
-    done: "Done"
+    done: "Done",
+    registerUser: "Register User",
+    invited: "Invited",
+    enterEmailFirst: "Enter email first to set name",
+    checkingEmail: "Checking email...",
+    alreadyInClass: "Student is already in this class.",
+    invitationSent: "Registration invitation sent!",
+    deleteClass: "Delete Class",
+    deleteClassWarning: "Permanently delete this class and detach assigned students.",
+    deleteClassPermanent: "Permanently Delete",
+    deleting: "Deleting..."
   },
   createTest: {
     title: "Create a New Test",
@@ -159,6 +169,48 @@ export const en: TranslationKeys = {
       falseOption: "False",
       categoryName: "Category Name",
       itemText: "Item text"
+    }
+  },
+  register: {
+    title: "Complete Registration",
+    subtitle: "Set your password to activate your account",
+    emailLabel: "Email Address",
+    nameLabel: "Name",
+    futureClassesLabel: "Joining the following class(es):",
+    passwordLabel: "New Password",
+    passwordPlaceholder: "At least 8 characters",
+    confirmPasswordLabel: "Confirm New Password",
+    confirmPasswordPlaceholder: "Repeat password",
+    passwordMismatch: "Passwords do not match.",
+    passwordMinLength: "Password must be at least 8 characters.",
+    passwordCriteriaTitle: "Password must satisfy the following requirements:",
+    criteriaMinLength: "At least 8 characters long",
+    criteriaUppercase: "At least one uppercase letter (A-Z)",
+    criteriaLowercase: "At least one lowercase letter (a-z)",
+    criteriaDigit: "At least one number (0-9)",
+    criteriaMatch: "Passwords match",
+    submitButton: "Complete Registration",
+    loading: "Registering...",
+    expiredTitle: "Registration Link Expired",
+    expiredSubtitle: "This invitation link was created more than 1 week ago and has expired. Please request a new invite from your teacher!",
+    goToLogin: "Go to Login",
+    alreadyRegisteredTitle: "This link has already been used",
+    alreadyRegisteredSubtitle: "This invitation link has already been used to complete registration. Please log in with your password!",
+    successMessage: "Registration successful! Logging in and redirecting...",
+    noClassesAssigned: "Currently not assigned to any classes. You can join later with a class code.",
+    errors: {
+      tokenRequired: "Token is required.",
+      passwordRequired: "Password is required.",
+      passwordMismatch: "Passwords do not match.",
+      passwordMinLength: "Password must be at least 8 characters long.",
+      invalidLink: "Invalid registration link.",
+      alreadyCompleted: "Registration has already been completed.",
+      linkExpired: "Registration link has expired.",
+      emailAlreadyExists: "An account with this email already exists.",
+      passwordRequiresUpper: "Password must contain at least one uppercase letter (A-Z).",
+      passwordRequiresLower: "Password must contain at least one lowercase letter (a-z).",
+      passwordRequiresDigit: "Password must contain at least one number (0-9).",
+      genericError: "An error occurred during registration. Please try again later."
     }
   }
 };

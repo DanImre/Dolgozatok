@@ -26,6 +26,7 @@ namespace Dolgozatok.Infrastructure
         public DbSet<Test> Tests { get; set; }
         public new DbSet<User> Users { get; set; }
         public DbSet<UserFolder> UserFolders { get; set; }
+        public DbSet<StudentRegistration> StudentRegistrations { get; set; }
         public DolgozatokDbContext(DbContextOptions<DolgozatokDbContext> options) : base(options)
         {
 
@@ -242,6 +243,17 @@ namespace Dolgozatok.Infrastructure
 
             modelBuilder.Entity<UserFolder>(entity =>
                 entity.HasQueryFilter(uf => !uf.User.IsDeleted));
+
+            modelBuilder.Entity<StudentRegistration>(entity =>
+            {
+                entity.HasIndex(r => r.Email);
+                entity.HasIndex(r => r.Token).IsUnique();
+                entity.HasOne(r => r.Class)
+                      .WithMany()
+                      .HasForeignKey(r => r.ClassId)
+                      .OnDelete(DeleteBehavior.SetNull);
+                entity.HasQueryFilter(r => !r.IsDeleted);
+            });
         }
     }
 }

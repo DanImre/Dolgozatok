@@ -10,6 +10,7 @@ using Dolgozatok.API.Extensions;
 using Dolgozatok.Infrastructure.Repositories;
 using Microsoft.AspNetCore.DataProtection;
 using System.IO;
+using Dolgozatok.Infrastructure.Services;
 using Task = System.Threading.Tasks.Task;
 
 namespace Dolgozatok.API
@@ -44,6 +45,7 @@ namespace Dolgozatok.API
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IFolderService, FolderService>();
             builder.Services.AddScoped<IClassService, ClassService>();
+            builder.Services.AddHttpClient<IEmailService, BrevoEmailService>();
 
             builder.Services.AddControllers(options =>
             {
@@ -64,7 +66,15 @@ namespace Dolgozatok.API
                 .PersistKeysToFileSystem(new DirectoryInfo(@"/app/DataProtection-Keys"))
                 .SetApplicationName("DolgozatokApp");
 
-            builder.Services.AddIdentityApiEndpoints<ApplicationIdentityUser>()
+            builder.Services.AddIdentityApiEndpoints<ApplicationIdentityUser>(options =>
+            {
+                options.Password.RequiredLength = 8;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequiredUniqueChars = 1;
+            })
                 .AddRoles<IdentityRole<int>>()
                 .AddEntityFrameworkStores<DolgozatokDbContext>()
                 .AddClaimsPrincipalFactory<CustomUserClaimsPrincipalFactory>();
@@ -96,8 +106,9 @@ namespace Dolgozatok.API
             using (var serviceScope = app.Services.CreateScope())
             using (var context = serviceScope.ServiceProvider.GetRequiredService<DolgozatokDbContext>())
             using (var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<ApplicationIdentityUser>>())
+            using (var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>())
             {
-                await DbInitializer.InitializeAsync(context, app.Environment.IsDevelopment(), userManager);
+                await DbInitializer.InitializeAsync(context, app.Environment.IsDevelopment(), userManager, roleManager);
             }
 
             await app.RunAsync();

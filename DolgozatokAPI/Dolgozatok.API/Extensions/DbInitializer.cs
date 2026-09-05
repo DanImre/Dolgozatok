@@ -12,13 +12,27 @@ namespace Dolgozatok.API.Extensions
 {
     public static class DbInitializer
     {
-        public static async Task InitializeAsync(DolgozatokDbContext context, bool isDevelopment, UserManager<ApplicationIdentityUser> userManager)
+        public static async Task InitializeAsync(
+            DolgozatokDbContext context, 
+            bool isDevelopment, 
+            UserManager<ApplicationIdentityUser> userManager,
+            RoleManager<IdentityRole<int>> roleManager)
         {
-            if (!isDevelopment)
-                return;
-
             // Ensure the database schema is created and up to date!
             await context.Database.MigrateAsync();
+
+            // 0. Ensure Roles
+            if (!await roleManager.RoleExistsAsync("Teacher"))
+            {
+                await roleManager.CreateAsync(new IdentityRole<int>("Teacher"));
+            }
+            if (!await roleManager.RoleExistsAsync("Student"))
+            {
+                await roleManager.CreateAsync(new IdentityRole<int>("Student"));
+            }
+
+            if (!isDevelopment)
+                return;
 
             // 1. Ensure Test Teacher
             var teacherEmail = "test.teacher@test.com";
@@ -53,6 +67,10 @@ namespace Dolgozatok.API.Extensions
                 await context.SaveChangesAsync();
             }
             teacherId = teacherIdentityUser.Id;
+            if (!await userManager.IsInRoleAsync(teacherIdentityUser, "Teacher"))
+            {
+                await userManager.AddToRoleAsync(teacherIdentityUser, "Teacher");
+            }
 
             // 3. Ensure Classes
             var teacherClass = await context.Classes.FirstOrDefaultAsync(c => c.ClassName == "Próba Tanár Osztály");
@@ -85,10 +103,14 @@ namespace Dolgozatok.API.Extensions
 
             await context.SaveChangesAsync();
 
-            // 4. Update Teacher Domain User ClassId
+            // 4. Update Teacher Domain User ClassId & Teachers collection
             var tUser = await context.Users.Include(u => u.Classes).FirstOrDefaultAsync(u => u.Id == teacherId);
             if (tUser != null && !tUser.Classes.Any(c => c.Id == teacherClass.Id))
                 tUser.Classes.Add(teacherClass);
+
+            var tcWithTeachers = await context.Classes.Include(c => c.Teachers).FirstOrDefaultAsync(c => c.Id == teacherClass.Id);
+            if (tcWithTeachers != null && tUser != null && !tcWithTeachers.Teachers.Any(t => t.Id == teacherId))
+                tcWithTeachers.Teachers.Add(tUser);
 
             // 5. Ensure Test Student
             var studentEmail = "test.student@test.com";
@@ -126,6 +148,11 @@ namespace Dolgozatok.API.Extensions
                 var sUser = await context.Users.Include(u => u.Classes).FirstOrDefaultAsync(u => u.Id == studentIdentityUser.Id);
                 if (sUser != null && !sUser.Classes.Any(c => c.Id == studentClass.Id))
                     sUser.Classes.Add(studentClass);
+            }
+
+            if (!await userManager.IsInRoleAsync(studentIdentityUser, "Student"))
+            {
+                await userManager.AddToRoleAsync(studentIdentityUser, "Student");
             }
 
             await context.SaveChangesAsync();

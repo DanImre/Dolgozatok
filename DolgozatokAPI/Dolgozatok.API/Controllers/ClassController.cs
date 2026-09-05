@@ -106,12 +106,54 @@ namespace Dolgozatok.API.Controllers
         }
 
         [HttpDelete("{classId}/students/{studentId}")]
-        public async Task<IActionResult> RemoveStudent(int classId, int studentId)
+        public async Task<IActionResult> RemoveStudent(int classId, int studentId, [FromQuery] bool isInvited = false)
         {
             try
             {
-                await _classService.RemoveStudentAsync(classId, studentId, GetUserId());
+                await _classService.RemoveStudentAsync(classId, studentId, GetUserId(), isInvited);
                 return Ok();
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("{classId}/check-student")]
+        public async Task<IActionResult> CheckStudentEmail(int classId, [FromQuery] string email)
+        {
+            try
+            {
+                var result = await _classService.CheckStudentEmailAsync(classId, email, GetUserId());
+                return Ok(result);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{classId}/students/add-existing")]
+        public async Task<IActionResult> AddExistingStudent(int classId, [FromBody] AddExistingStudentRequest request)
+        {
+            try
+            {
+                await _classService.AddExistingStudentAsync(classId, request.Email, GetUserId());
+                return Ok(new { message = "Student added successfully." });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpPost("{classId}/students/register")]
+        public async Task<IActionResult> RegisterStudent(int classId, [FromBody] RegisterStudentRequest request)
+        {
+            try
+            {
+                await _classService.RegisterStudentAsync(classId, request.Name, request.Email, GetUserId());
+                return Ok(new { message = "Registration email sent." });
             }
             catch (System.Exception ex)
             {
@@ -132,6 +174,7 @@ namespace Dolgozatok.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
         [HttpGet("{classId}/students")]
         public async Task<IActionResult> GetClassStudents(int classId)
         {
@@ -145,6 +188,20 @@ namespace Dolgozatok.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        [HttpDelete("{classId}")]
+        public async Task<IActionResult> DeleteClass(int classId)
+        {
+            try
+            {
+                await _classService.DeleteClassAsync(classId, GetUserId());
+                return Ok(new { message = "Class deleted successfully." });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 
     public class ToggleCodeRequest { public bool IsActive { get; set; } }
@@ -152,4 +209,6 @@ namespace Dolgozatok.API.Controllers
     public class ManualStudentRequest { public string Name { get; set; } = string.Empty; public string Email { get; set; } = string.Empty; }
     public class CreateClassRequest { public string ClassName { get; set; } = string.Empty; }
     public class RenameClassRequest { public string Name { get; set; } = string.Empty; }
+    public class AddExistingStudentRequest { public string Email { get; set; } = string.Empty; }
+    public class RegisterStudentRequest { public string Email { get; set; } = string.Empty; public string Name { get; set; } = string.Empty; }
 }

@@ -16,11 +16,13 @@ namespace Dolgozatok.Infrastructure.Repositories
     {
         private readonly DolgozatokDbContext _context;
         private readonly UserManager<ApplicationIdentityUser> _userManager;
+        private readonly IEmailService _emailService;
 
-        public ClassService(DolgozatokDbContext context, UserManager<ApplicationIdentityUser> userManager)
+        public ClassService(DolgozatokDbContext context, UserManager<ApplicationIdentityUser> userManager, IEmailService emailService)
         {
             _context = context;
             _userManager = userManager;
+            _emailService = emailService;
         }
 
         public async Task<IEnumerable<ClassDto>> GetTeacherClassesAsync(int teacherId)
@@ -151,9 +153,23 @@ namespace Dolgozatok.Infrastructure.Repositories
             }
         }
 
-        public async Task RemoveStudentAsync(int classId, int studentId, int teacherId)
+        public async Task RemoveStudentAsync(int classId, int studentId, int teacherId, bool isInvited = false)
         {
             await EnsureTeacherOwnsClass(classId, teacherId);
+
+            if (isInvited)
+            {
+                var registration = await _context.StudentRegistrations
+                    .FirstOrDefaultAsync(r => r.Id == studentId && r.ClassId == classId && !r.IsDeleted);
+
+                if (registration != null)
+                {
+                    registration.ClassId = null;
+                    registration.Class = null;
+                    await _context.SaveChangesAsync();
+                }
+                return;
+            }
 
             User? student = await _context.Users
                 .Include(u => u.Classes)
@@ -223,12 +239,182 @@ namespace Dolgozatok.Infrastructure.Repositories
                 .Where(u => !string.IsNullOrEmpty(u.Email))
                 .ToDictionaryAsync(u => u.Id, u => u.Email!);
 
-            return classObj.Students.Select(s => new StudentDto
+            var result = classObj.Students.Select(s => new StudentDto
             {
                 Id = s.Id,
                 Name = s.RealName,
-                Email = emails.ContainsKey(s.Id) ? emails[s.Id] : string.Empty
-            });
+                Email = emails.ContainsKey(s.Id) ? emails[s.Id] : string.Empty,
+                IsInvited = false
+            }).ToList();
+
+            var pendingRegistrations = await _context.StudentRegistrations
+                .Where(r => r.ClassId == classId && !r.IsCompleted && r.ExpiresAt > DateTime.UtcNow && !r.IsDeleted)
+                .ToListAsync();
+
+            foreach (var reg in pendingRegistrations)
+            {
+                if (!result.Any(s => s.Email.Equals(reg.Email, StringComparison.OrdinalIgnoreCase)))
+                {
+                    result.Add(new StudentDto
+                    {
+                        Id = reg.Id,
+                        Name = reg.Name,
+                        Email = reg.Email,
+                        IsInvited = true
+                    });
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<CheckStudentResultDto> CheckStudentEmailAsync(int classId, string email, int teacherId)
+        {
+            await EnsureTeacherOwnsClass(classId, teacherId);
+
+            var cleanEmail = email.Trim().ToLowerInvariant();
+            var identityUser = await _userManager.FindByEmailAsync(cleanEmail);
+
+            if (identityUser != null)
+            {
+                var domainUser = await _context.Users
+                    .Include(u => u.Classes)
+                    .FirstOrDefaultAsync(u => u.Id == identityUser.Id && !u.IsDeleted);
+
+                if (domainUser != null)
+                {
+                    return new CheckStudentResultDto
+                    {
+                        Exists = true,
+                        Name = domainUser.RealName,
+                        IsAlreadyInClass = domainUser.Classes.Any(c => c.Id == classId)
+                    };
+                }
+            }
+
+            var pendingReg = await _context.StudentRegistrations
+                .Where(r => r.Email.ToLower() == cleanEmail && !r.IsCompleted && r.ExpiresAt > DateTime.UtcNow && !r.IsDeleted)
+                .OrderByDescending(r => r.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            bool alreadyPendingForThisClass = await _context.StudentRegistrations
+                .AnyAsync(r => r.Email.ToLower() == cleanEmail && r.ClassId == classId && !r.IsCompleted && r.ExpiresAt > DateTime.UtcNow && !r.IsDeleted);
+
+            return new CheckStudentResultDto
+            {
+                Exists = false,
+                Name = pendingReg?.Name ?? string.Empty,
+                IsAlreadyInClass = alreadyPendingForThisClass
+            };
+        }
+
+        public async Task AddExistingStudentAsync(int classId, string email, int teacherId)
+        {
+            await EnsureTeacherOwnsClass(classId, teacherId);
+
+            var classObj = await _context.Classes.Include(c => c.Students).FirstOrDefaultAsync(c => c.Id == classId && !c.IsDeleted);
+            if (classObj == null)
+                throw new Exception("Class not found");
+
+            var cleanEmail = email.Trim().ToLowerInvariant();
+            var identityUser = await _userManager.FindByEmailAsync(cleanEmail);
+            if (identityUser == null)
+                throw new Exception("User not found with this email");
+
+            var domainUser = await _context.Users.Include(u => u.Classes).FirstOrDefaultAsync(u => u.Id == identityUser.Id && !u.IsDeleted);
+            if (domainUser == null)
+                throw new Exception("User profile not found");
+
+            if (!domainUser.Classes.Any(c => c.Id == classId))
+            {
+                domainUser.Classes.Add(classObj);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task RegisterStudentAsync(int classId, string name, string email, int teacherId)
+        {
+            await EnsureTeacherOwnsClass(classId, teacherId);
+
+            var classObj = await _context.Classes.FindAsync(classId);
+            if (classObj == null)
+                throw new Exception("Class not found");
+
+            var cleanEmail = email.Trim().ToLowerInvariant();
+            var cleanName = name.Trim();
+
+            if (string.IsNullOrWhiteSpace(cleanEmail))
+                throw new Exception("Email cannot be empty");
+            if (string.IsNullOrWhiteSpace(cleanName))
+                throw new Exception("Student name cannot be empty");
+
+            var existingIdentityUser = await _userManager.FindByEmailAsync(cleanEmail);
+            if (existingIdentityUser != null)
+            {
+                await AddExistingStudentAsync(classId, cleanEmail, teacherId);
+                return;
+            }
+
+            var existingRegForClass = await _context.StudentRegistrations
+                .FirstOrDefaultAsync(r => r.Email.ToLower() == cleanEmail && r.ClassId == classId && !r.IsCompleted && r.ExpiresAt > DateTime.UtcNow && !r.IsDeleted);
+
+            string token;
+            if (existingRegForClass != null)
+            {
+                existingRegForClass.Name = cleanName;
+                existingRegForClass.ExpiresAt = DateTime.UtcNow.AddDays(7);
+                token = existingRegForClass.Token;
+            }
+            else
+            {
+                token = Guid.NewGuid().ToString("N");
+                var registration = new StudentRegistration
+                {
+                    Email = cleanEmail,
+                    Name = cleanName,
+                    Token = token,
+                    ClassId = classId,
+                    CreatedAt = DateTime.UtcNow,
+                    ExpiresAt = DateTime.UtcNow.AddDays(7),
+                    IsCompleted = false,
+                    IsDeleted = false
+                };
+                _context.StudentRegistrations.Add(registration);
+            }
+
+            await _context.SaveChangesAsync();
+
+            await _emailService.SendRegistrationEmailAsync(cleanEmail, cleanName, token, classObj.ClassName);
+        }
+
+        public async Task DeleteClassAsync(int classId, int teacherId)
+        {
+            var classObj = await _context.Classes
+                .Include(c => c.Teachers)
+                .Include(c => c.Students)
+                .FirstOrDefaultAsync(c => c.Id == classId && !c.IsDeleted);
+
+            if (classObj == null)
+                throw new Exception("Class not found");
+
+            if (classObj.OwnerId != teacherId && !classObj.Teachers.Any(t => t.Id == teacherId))
+                throw new Exception("You do not have permission to delete this class.");
+
+            // Soft-delete the class
+            classObj.IsDeleted = true;
+            classObj.IsJoinCodeActive = false;
+
+            // Detach any pending invitations for this class
+            var pendingRegistrations = await _context.StudentRegistrations
+                .Where(r => r.ClassId == classId && !r.IsCompleted && !r.IsDeleted)
+                .ToListAsync();
+
+            foreach (var reg in pendingRegistrations)
+            {
+                reg.ClassId = null;
+            }
+
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -97,7 +97,17 @@ export const hu: TranslationKeys = {
     noStudentsYet: "Még nincsenek diákok ebben az osztályban.",
     loadingStudents: "Diákok betöltése...",
     studentCreated: "Diák létrehozva!",
-    done: "Kész"
+    done: "Kész",
+    registerUser: "Felhasználó Regisztrálása",
+    invited: "Meghívva",
+    enterEmailFirst: "Add meg az email címet a név megadásához",
+    checkingEmail: "Email ellenőrzése...",
+    alreadyInClass: "A diák már tagja ennek az osztálynak.",
+    invitationSent: "Regisztrációs meghívó elküldve!",
+    deleteClass: "Osztály törlése",
+    deleteClassWarning: "Az osztály végleges törlése és a hozzárendelt diákok lekapcsolása.",
+    deleteClassPermanent: "Végleges törlés",
+    deleting: "Törlés folyamatban..."
   },
   createTest: {
     title: "Új teszt létrehozása",
@@ -159,6 +169,48 @@ export const hu: TranslationKeys = {
       falseOption: "Hamis",
       categoryName: "Kategória neve",
       itemText: "Elem szövege"
+    }
+  },
+  register: {
+    title: "Regisztráció Befejezése",
+    subtitle: "Állítsd be a jelszavad a fiókod aktiválásához",
+    emailLabel: "Email cím",
+    nameLabel: "Név",
+    futureClassesLabel: "Csatlakozás a következő osztályokhoz:",
+    passwordLabel: "Új jelszó",
+    passwordPlaceholder: "Legalább 8 karakter",
+    confirmPasswordLabel: "Új jelszó megerősítése",
+    confirmPasswordPlaceholder: "Jelszó újra",
+    passwordMismatch: "A jelszavak nem egyeznek meg.",
+    passwordMinLength: "A jelszónak legalább 8 karakter hosszúnak kell lennie.",
+    passwordCriteriaTitle: "A jelszónak meg kell felelnie a következőknek:",
+    criteriaMinLength: "Legalább 8 karakter hosszú",
+    criteriaUppercase: "Legalább egy nagybetű (A-Z)",
+    criteriaLowercase: "Legalább egy kisbetű (a-z)",
+    criteriaDigit: "Legalább egy szám (0-9)",
+    criteriaMatch: "A két jelszó megegyezik",
+    submitButton: "Regisztráció Véglegesítése",
+    loading: "Regisztráció folyamatban...",
+    expiredTitle: "A regisztrációs link lejárt",
+    expiredSubtitle: "Ez a meghívó link több mint 1 hete készült, ezért érvényét vesztette. Kérj új meghívót a tanárodtól!",
+    goToLogin: "Ugrás a bejelentkezéshez",
+    alreadyRegisteredTitle: "A linket már felhasználták",
+    alreadyRegisteredSubtitle: "Ezzel a meghívó linkkel a regisztráció már sikeresen megtörtént. Kérjük, jelentkezz be a fiókodba a jelszavaddal!",
+    successMessage: "Sikeres regisztráció! Bejelentkezés és átirányítás...",
+    noClassesAssigned: "Jelenleg nem vagy hozzárendelve egy osztályhoz sem. Később csatlakozhatsz osztálykóddal.",
+    errors: {
+      tokenRequired: "A token megadása kötelező.",
+      passwordRequired: "A jelszó megadása kötelező.",
+      passwordMismatch: "A megadott jelszavak nem egyeznek meg.",
+      passwordMinLength: "A jelszónak legalább 8 karakter hosszúnak kell lennie.",
+      invalidLink: "A megadott regisztrációs link érvénytelen.",
+      alreadyCompleted: "A regisztráció ezzel a fiókkal már megtörtént.",
+      linkExpired: "A regisztrációs link lejárt.",
+      emailAlreadyExists: "Ezzel az email címmel már létezik regisztrált fiók.",
+      passwordRequiresUpper: "A jelszónak tartalmaznia kell legalább egy nagybetűt (A-Z).",
+      passwordRequiresLower: "A jelszónak tartalmaznia kell legalább egy kisbetűt (a-z).",
+      passwordRequiresDigit: "A jelszónak tartalmaznia kell legalább egy számot (0-9).",
+      genericError: "A regisztráció során hiba történt. Kérjük, próbáld újra később."
     }
   }
 };
